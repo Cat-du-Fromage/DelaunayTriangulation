@@ -1,10 +1,12 @@
 using KaizerWaldCode.Job;
 using Unity.Burst;
 using Unity.Collections;
+using Unity.Collections.LowLevel.Unsafe;
 using Unity.Entities;
 using Unity.Jobs;
 using Unity.Jobs.LowLevel.Unsafe;
 using Unity.Mathematics;
+using Unity.Rendering;
 using Unity.Transforms;
 using UnityEngine;
 using Random = Unity.Mathematics.Random;
@@ -29,40 +31,21 @@ namespace KaizerWaldCode.System
         //WE SHALL USE WORLEY NOISE TO FIND EACH CLOSEST PIXEL!
         //https://www.youtube.com/watch?v=4066MndcyCk&t=592s&ab_channel=TheCodingTrain
 
-        protected override void OnStartRunning()
-        {
-
-        }
-
         protected override void OnUpdate()
         {
             Entity mapSettings = GetSingletonEntity<Data.Tag.MapSettings>();
 
-            int mapSize = GetComponent<Data.MapData>(GetSingletonEntity<Data.Tag.MapSettings>()).MapSize;
-            float radius = 5f;
+            int mapSize = GetComponent<Data.MapData>(mapSettings).MapSize;
+            float radius = 1f;
             float cellSize = radius / math.sqrt(2);
-            int gridSize = (int)math.floor(mapSize / cellSize);
+            int gridSize = (int)math.ceil(mapSize / cellSize);
+            Random pRng = new Random(15646);
 
-            NativeArray<float2> grid = new NativeArray<float2>(mapSize * mapSize, Allocator.TempJob, NativeArrayOptions.UninitializedMemory);
-            //FirstInit GridPoisson JOB
-            PoissonDiscInitGrid poissonDiscInit = new PoissonDiscInitGrid()
-            {
-                DiscGridJob = grid,
-            };
-            JobHandle poissonDiscInitJobHandle = poissonDiscInit.ScheduleParallel(grid.Length, JobsUtility.JobWorkerCount - 1, Dependency);
-            //poissonDiscInitJobHandle.Complete();
-            //1598 : TopLeft corner
-            Random pRNG = new Random(15646);
-
-            
-
-            NativeList<float2> activePoint = new NativeList<float2>(Allocator.TempJob);
-            NativeList<float2> samplePoint = new NativeList<float2>(Allocator.TempJob);
-
-            //grid = PoissonDiscSampling.PoissonDiscPoints(grid, activePoint, 15646, mapSize, radius);
-            //PoissonDISC JOB
-
-            PoissonDiscJob2 poissonDiscJob2 = new PoissonDiscJob2()
+            NativeArray<int> gridCells = new NativeArray<int>(gridSize * gridSize, Allocator.TempJob);
+            NativeList<float2> activePoints = new NativeList<float2>(Allocator.TempJob);
+            NativeList<float2> samplePoints = new NativeList<float2>(Allocator.TempJob);
+            #region PoissonDiscSamples
+            PoissonDiscJobSecond poissonDiscJobSecond = new PoissonDiscJobSecond
             {
                 MapSize = mapSize,
                 NumSampleBeforeRejectJob = 30,
@@ -70,44 +53,45 @@ namespace KaizerWaldCode.System
                 CellSize = cellSize,
                 IndexInRow = gridSize,
                 Row = gridSize,
-                PRNG = pRNG,
-                DiscGridJob = grid,
-                ActivePointsJob = activePoint,
-                SamplePointsJob = samplePoint,
+                Prng = pRng,
+                DiscGridJob = gridCells,
+                ActivePointsJob = activePoints,
+                SamplePointsJob = samplePoints,
             };
-            JobHandle poissonDisc2JobHandle = poissonDiscJob2.Schedule(poissonDiscInitJobHandle);
-            poissonDisc2JobHandle.Complete();
-            Debug.Log($"sample Points LENGTH {samplePoint.Length}");
-            NativeArray<float2> sampleNatArra = new NativeArray<float2>(samplePoint.Length, Allocator.TempJob, NativeArrayOptions.UninitializedMemory);
-            sampleNatArra.CopyFrom(samplePoint.ToArray());
-            samplePoint.Dispose();
-            //CONVERT BACK to float3Position
-            NativeArray<float3> gridPosition = new NativeArray<float3>(sampleNatArra.Length/*gridSize * gridSize*/, Allocator.TempJob, NativeArrayOptions.UninitializedMemory);
+            JobHandle poissonDiscSecondJobHandle = poissonDiscJobSecond.Schedule(Dependency);
+            poissonDiscSecondJobHandle.Complete();
+            activePoints.Dispose();
+            #endregion PoissonDiscSamples
+            //========================================================================================================================================================
+            #region Conversion Float2 -> float3
+            //JobHandle test = NativeSortExtension.Sort(gridCells, Dependency);
             
-            PoissonDiscPosition poissonDiscPosition = new PoissonDiscPosition()
+            NativeArray<float2> sampleNatArra = new NativeArray<float2>(samplePoints.Length, Allocator.TempJob, NativeArrayOptions.UninitializedMemory);
+            sampleNatArra.CopyFrom(samplePoints.ToArray());
+            samplePoints.Dispose(poissonDiscSecondJobHandle);
+            //CONVERT BACK to float3 Position and offset points by mapsize/2
+            //TO DO : Find a way to directly calculate sample point in the right direction => so we don't need to offset later
+            NativeArray<float3> gridPosition = new NativeArray<float3>(sampleNatArra.Length/*gridSize * gridSize*/, Allocator.TempJob, NativeArrayOptions.UninitializedMemory);
+            PoissonDiscPosition poissonDiscPosition = new PoissonDiscPosition
             {
                 MapSizeJob = mapSize,
                 DiscGridJob = sampleNatArra,
                 DiscPositionJob = gridPosition,
             };
-            JobHandle poissonDiscPositionJobHandle = poissonDiscPosition.ScheduleParallel(gridPosition.Length, JobsUtility.JobWorkerCount - 1, poissonDisc2JobHandle);
-
+            JobHandle poissonDiscPositionJobHandle = poissonDiscPosition.ScheduleParallel(gridPosition.Length, JobsUtility.JobWorkerCount - 1, poissonDiscSecondJobHandle);
             poissonDiscPositionJobHandle.Complete();
-            //Debug.Log($"JobFinished : {_poissonPointList.Length}");
+            #endregion Conversion Float2 -> float3
+            //========================================================================================================================================================
+            //Used for voronoi / worley noise
             GetBuffer<Data.Chunks.PoissonDiscGrid>(GetSingletonEntity<Data.Tag.ChunksHolder>()).Reinterpret<float2>().CopyFrom(sampleNatArra);
-            sampleNatArra.Dispose();
-            grid.Dispose();
-            activePoint.Dispose();
-            //samplePoint.Dispose();
-
+            //Used for debuging points
             GetBuffer<Data.Chunks.PoissonDiscSample>(GetSingletonEntity<Data.Tag.ChunksHolder>()).Reinterpret<float3>().CopyFrom(gridPosition);
+            sampleNatArra.Dispose();
+            gridCells.Dispose();
             gridPosition.Dispose();
-            _em.RemoveComponent<Data.Events.Event_PoissonDisc>(GetSingletonEntity<Data.Tag.MapEventHolder>());
-        }
 
-        protected override void OnDestroy()
-        {
-            //if (_poissonPointList.IsCreated) _poissonPointList.Dispose();
+            _em.RemoveComponent<Data.Events.Event_PoissonDisc>(GetSingletonEntity<Data.Tag.MapEventHolder>());
+            _em.AddComponent<Data.Events.Event_Voronoi>(GetSingletonEntity<Data.Tag.MapEventHolder>());
         }
     }
 }

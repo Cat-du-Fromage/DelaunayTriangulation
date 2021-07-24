@@ -16,7 +16,11 @@ namespace KaizerWaldCode.Data
     namespace Events
     {
         public struct Event_InitGrid : IComponentData { }
+
+
         public struct Event_PoissonDisc : IComponentData { }
+        public struct Event_Voronoi : IComponentData { }
+
         public struct Event_CreateMapChunks : IComponentData { }
         public struct Event_ChunksSlice : IComponentData { }
         public struct Event_ChunksMeshData : IComponentData { }

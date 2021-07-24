@@ -43,6 +43,14 @@ namespace KaizerWaldCode.System
                 typeof(LocalToWorld),
                 typeof(Translation),
                 typeof(RenderBounds),
+                
+                typeof(PerInstanceCullingTag),
+                typeof(WorldToLocal_Tag),
+                typeof(BuiltinMaterialPropertyUnity_MatrixPreviousMI_Tag),
+                typeof(AmbientProbeTag),
+                typeof(BlendProbeTag),
+                typeof(CustomProbeTag),
+                
                 typeof(Data.Chunks.Vertices),
                 typeof(Data.Chunks.Uvs),
                 typeof(Data.Chunks.Triangles),
@@ -64,7 +72,6 @@ namespace KaizerWaldCode.System
             ecbBegin.SetBuffer<LinkedEntityGroup>(GetSingletonEntity<Data.Tag.ChunksHolder>()).Reinterpret<Entity>().AddRange(numChunksNativeArray);
 
             numChunksNativeArray.Dispose();
-
 
             ecbBegin.RemoveComponent<Data.Events.Event_CreateMapChunks>(GetSingletonEntity<Data.Tag.MapEventHolder>());
             ecbBegin.AddComponent<Data.Events.Event_ChunksSlice>(GetSingletonEntity<Data.Tag.MapEventHolder>());

@@ -8,93 +8,93 @@ using Unity.Transforms;
 using UnityEngine;
 using Random = Unity.Mathematics.Random;
 
-[BurstCompile(CompileSynchronously = true)]
-public struct PoissonDiscJobSecond : IJob
+namespace KaizerWaldCode.Job
 {
-    [ReadOnly] public int MapSize;
-
-    [ReadOnly] public int NumSampleBeforeRejectJob;
-    [ReadOnly] public float RadiusJob;
-    [ReadOnly] public float CellSize; //(w)radius/math.sqrt(2)
-    [ReadOnly] public int IndexInRow; // X(cols) : math.floor(mapHeight/cellSize)
-    [ReadOnly] public int Row; // Y(rows) :math.floor(mapWidth/cellSize)
-
-    //STEP 1
-    [ReadOnly] public Random PRNG;
-    //[ReadOnly] public float2 randomPoint; //new float2(PRNG(X), PRNG(Y))
-
-    public NativeArray<float2> DiscGridJob;
-    public NativeList<float2> ActivePointsJob;
-    public NativeList<float2> SamplePointsJob;
-
-    [BurstDiscard]
-    public void GetRandom(float2 dir)
+    [BurstCompile(CompileSynchronously = true)]
+    public struct PoissonDiscPosition : IJobFor
     {
-        Debug.Log($"randdir = {dir}");
+        [ReadOnly] public int MapSizeJob;
+        [ReadOnly] public NativeArray<float2> DiscGridJob;
+        [WriteOnly] public NativeArray<float3> DiscPositionJob;
+        public void Execute(int index)
+        {
+            DiscPositionJob[index] = new float3(DiscGridJob[index].x - MapSizeJob / 2f, 0, DiscGridJob[index].y - MapSizeJob / 2f);
+        }
     }
 
-    public void Execute()
+    [BurstCompile(CompileSynchronously = true)]
+    public struct PoissonDiscJobSecond : IJob
     {
+        [ReadOnly] public int MapSize;
 
-        float2 firstPoint = new float2(MapSize / 2f, MapSize / 2f);
-        DiscGridJob[(int)math.mad((MapSize / 2f) / CellSize, IndexInRow, (MapSize / 2f) / CellSize)] = firstPoint;
+        [ReadOnly] public int NumSampleBeforeRejectJob;
+        [ReadOnly] public float RadiusJob;
+        [ReadOnly] public float CellSize; //(w)radius/math.sqrt(2)
+        [ReadOnly] public int IndexInRow; // X(cols) : math.floor(mapHeight/cellSize)
+        [ReadOnly] public int Row; // Y(rows) :math.floor(mapWidth/cellSize)
+        [ReadOnly] public Random Prng;
 
-        ActivePointsJob.Add(firstPoint);
-        while (ActivePointsJob.Length > 0)
+        public NativeArray<int> DiscGridJob;
+        public NativeList<float2> ActivePointsJob;
+        public NativeList<float2> SamplePointsJob;
+
+        public void Execute()
         {
-            int spawnIndex = PRNG.NextInt(ActivePointsJob.Length);
-            float2 spawnPosition = ActivePointsJob[spawnIndex];
-            bool accepted = false;
-            for (int k = 0; k < NumSampleBeforeRejectJob; k++)
+            float2 firstPoint = new float2(MapSize / 2f, MapSize / 2f);
+            ActivePointsJob.Add(firstPoint);
+            while (ActivePointsJob.Length > 0)
             {
-                float2 randDirection = PRNG.NextFloat2Direction();
-                float2 sample = math.mad(randDirection, PRNG.NextFloat(RadiusJob, math.mul(2, RadiusJob)), spawnPosition) /*- (new float2(MapSize / 2f, MapSize / 2f))*/;
-                //SamplePointsJob.Add(sample);
-
-                int sampleX = (int)math.floor(sample.x / CellSize); //col
-                int sampleY = (int)math.floor(sample.y / CellSize); //row
-                //TEST for rejection
-                if (Accepted(sample, sampleX, sampleY))
+                int spawnIndex = Prng.NextInt(ActivePointsJob.Length);
+                float2 spawnPosition = ActivePointsJob[spawnIndex];
+                bool accepted = false;
+                for (int k = 0; k < NumSampleBeforeRejectJob; k++)
                 {
-                    DiscGridJob[math.mad(sampleY, IndexInRow, sampleX)] = sample;
-                    ActivePointsJob.Add(sample);
-                    SamplePointsJob.Add(sample);
-                    accepted = true;
-                    break;
+                    float2 randDirection = Prng.NextFloat2Direction();
+                    float2 sample = math.mad(randDirection, Prng.NextFloat(RadiusJob, math.mul(2, RadiusJob)), spawnPosition);
+
+                    int sampleX = (int)(sample.x / CellSize); //col
+                    int sampleY = (int)(sample.y / CellSize); //row
+                    //TEST for rejection
+                    if (SampleAccepted(sample, sampleX, sampleY))
+                    {
+                        SamplePointsJob.Add(sample);
+                        ActivePointsJob.Add(sample);
+                        DiscGridJob[math.mad(sampleY, Row, sampleX)] = SamplePointsJob.Length;
+                        accepted = true;
+                        break;
+                    }
                 }
+
+                if (!accepted) ActivePointsJob.RemoveAt(spawnIndex);
             }
-            if (!accepted) ActivePointsJob.RemoveAt(spawnIndex);
+
         }
 
-    }
-
-    bool Accepted(float2 sample, int sampleX, int sampleY)
-    {
-        if (sample.x >= 0 && sample.x < MapSize && sample.y >= 0 && sample.y < MapSize)
+        bool SampleAccepted(float2 sample, int sampleX, int sampleY)
         {
-            if (DiscGridJob[math.mad(sampleY, IndexInRow, sampleX)].Equals(new float2(-1, -1)))
+            if (sample.x >= 0 && sample.x < MapSize && sample.y >= 0 && sample.y < MapSize)
             {
-                for (int x1 = -2; x1 <= 2; x1++)
+                int searchStartX = math.max(0, sampleX - 2);
+                int searchEndX = math.min(sampleX + 2, IndexInRow - 1);
+
+                int searchStartY = math.max(0, sampleY - 2);
+                int searchEndY = math.min(sampleY + 2, Row - 1);
+
+                // <= or it will created strange cluster of points at the borders of the map
+                for (int y = searchStartY; y <= searchEndY; y++)
                 {
-                    for (int y1 = -2; y1 <= 2; y1++)
+                    for (int x = searchStartX; x <= searchEndX; x++)
                     {
-                        int indexSample = math.mad(sampleY + y1, IndexInRow, sampleX + x1);
-                        if (indexSample >= 0)
+                        int indexSample = DiscGridJob[math.mad(y, Row, x)] - 1;
+                        if (indexSample != -1)
                         {
-                            if (DiscGridJob[indexSample].Equals(new float2(-1, -1)))
-                            {
-                                float2 neighbor = DiscGridJob[indexSample];
-                                if (math.distancesq(sample, neighbor) < math.mul(RadiusJob, RadiusJob))
-                                {
-                                    return false;
-                                }
-                            }
+                            if (math.distancesq(sample, SamplePointsJob[indexSample]) < math.mul(RadiusJob, RadiusJob)) return false;
                         }
                     }
                 }
+                return true;
             }
-            return true;
+            return false;
         }
-        return false;
     }
 }

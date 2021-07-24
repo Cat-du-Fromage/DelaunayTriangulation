@@ -72,7 +72,7 @@ namespace KaizerWaldCode.System
                     
                     _em.SetComponentData(ent, new WorldRenderBounds() {Value = mesh.bounds.ToAABB()});
                     
-                    //_em.RemoveComponent<DisableRendering>(ent);
+                    _em.RemoveComponent<DisableRendering>(ent);
                 }).Run();
 
             _em.RemoveComponent<Data.Events.Event_CreateMesh>(GetSingletonEntity<Data.Tag.MapEventHolder>());
