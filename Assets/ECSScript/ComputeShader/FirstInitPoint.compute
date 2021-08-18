@@ -1,0 +1,19 @@
+// Each #kernel tells which function to compile; you can have many kernels
+#pragma kernel FirstInitPoint
+
+// Create a RenderTexture with enableRandomWrite flag and set it
+// with cs.SetTexture
+int pointPerAxis;
+int mapSize;
+float spacing;
+RWStructuredBuffer<float3> grid;
+
+[numthreads(32,1,32)]
+void FirstInitPoint(uint3 id : SV_DispatchThreadID)
+{
+	if (id.z < (uint)pointPerAxis && id.x < (uint)pointPerAxis)
+	{
+		float3 verticePos = float3(id.x, 0, id.z) * float3(spacing, spacing, spacing) - float3((uint)mapSize / 2u, 0, (uint)mapSize / 2u);
+		grid[ (id.z * (uint)pointPerAxis) + id.x] = verticePos;
+	}
+}

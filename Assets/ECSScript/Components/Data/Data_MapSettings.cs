@@ -26,9 +26,11 @@ namespace KaizerWaldCode.Data
 
     public struct PoissonDiscData : IComponentData
     {
-        public int Seed;
-        public float Radius;
-        public int SampleBeforeReject;
+        public uint Seed;
+        public uint Radius;
+        public uint SampleBeforeReject;
+        public uint NumCellMap;
+        public float CellSize;
     }
 
     public struct NoiseData : IComponentData
@@ -59,6 +61,11 @@ namespace KaizerWaldCode.Data
             public float3 Value;
         }
 
+        public struct VerticesCellGrid : IBufferElementData
+        {
+            public float3 Value; //z holds index of cell
+        }
+
         public struct Uvs : IBufferElementData
         {
             public float2 Value;
@@ -68,6 +75,12 @@ namespace KaizerWaldCode.Data
         {
             public int Value;
         }
+
+        public struct PDiscGrid : IBufferElementData
+        {
+            public float3 Value;
+        }
+
         public struct PoissonDiscSample : IBufferElementData
         {
             public float3 Value;
@@ -76,6 +89,16 @@ namespace KaizerWaldCode.Data
         public struct PoissonDiscGrid : IBufferElementData
         {
             public float2 Value;
+        }
+
+        public struct IslandPoissonDisc : IBufferElementData
+        {
+            public float4 Value;
+        }
+
+        public struct VoronoiGrid : IBufferElementData
+        {
+            public float4 Value;
         }
 
         public struct HeightMap : IBufferElementData

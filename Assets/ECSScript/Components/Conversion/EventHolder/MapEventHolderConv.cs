@@ -19,6 +19,7 @@ namespace KaizerWaldCode.Data.Conversion
             dstManager.RemoveComponent<Rotation>(entity);
             #endregion Tagging
             dstManager.AddComponent<Events.Event_InitGrid>(entity);
+            dstManager.AddComponent<Events.Event_RandomSamples>(entity);
             dstManager.AddComponent<Events.Event_PoissonDisc>(entity);
         }
     }

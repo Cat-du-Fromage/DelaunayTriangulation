@@ -1,3 +1,4 @@
+using System;
 using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Transforms;
@@ -13,6 +14,10 @@ namespace KaizerWaldCode.Data.Conversion
         public int NumChunks;
         [Range(2,10)]
         public int PointPerMeter;
+
+        public PoissonDiscData poissonDiscSample;
+
+        public NoiseData Noise;
 
 
         public void Convert(Entity entity, EntityManager dstManager, GameObjectConversionSystem conversionSystem)
@@ -30,10 +35,42 @@ namespace KaizerWaldCode.Data.Conversion
                 ChunkSize = math.max(1, this.ChunkSize),
                 NumChunk = math.max(1, NumChunks),
                 MapSize = math.mul(this.ChunkSize, NumChunks),
-                PointPerMeter = math.max(1, this.PointPerMeter),
-                PointSpacing = (float)this.ChunkSize / ((this.ChunkSize*PointPerMeter) - 1f),
+                PointPerMeter = math.max(2, this.PointPerMeter),
+
+                //Try(NumChunks*this.ChunkSize - 1) * PointPerMeter - (NumChunks * this.ChunkSize - 2)
+                
+                PointSpacing = 1f / (PointPerMeter - 1f),
+                //ChunkPointPerAxis = (this.ChunkSize - 1) * PointPerMeter - (this.ChunkSize - 2),
+                ChunkPointPerAxis = (this.ChunkSize * PointPerMeter) - (this.ChunkSize - 1),
+                MapPointPerAxis = (NumChunks * this.ChunkSize) * PointPerMeter - (NumChunks * this.ChunkSize - 1),
+                //MapPointPerAxis = (NumChunks * this.ChunkSize - 1) * PointPerMeter - (NumChunks * this.ChunkSize - 2),
+                
+                /*
+                PointSpacing = (float)this.ChunkSize / ((this.ChunkSize * PointPerMeter) - 1f),
                 ChunkPointPerAxis = this.ChunkSize * PointPerMeter,
                 MapPointPerAxis = math.max(this.ChunkSize * PointPerMeter, NumChunks * (this.ChunkSize * PointPerMeter) - (NumChunks-1)),
+                */
+            });
+            UnityEngine.Debug.Log($"Old method = {math.max(this.ChunkSize * PointPerMeter, NumChunks * (this.ChunkSize * PointPerMeter) - (NumChunks - 1))}");
+            UnityEngine.Debug.Log($"New method = {(NumChunks * this.ChunkSize) * PointPerMeter - (NumChunks * this.ChunkSize - 1)}");
+            dstManager.AddComponentData(entity, new Data.NoiseData()
+            {
+                Seed = math.max(1, Noise.Seed),
+                Octaves = math.max(1, Noise.Octaves),
+                Scale = math.max(0.001f, Noise.Scale),
+                Persistance = math.min(math.max(0, Noise.Persistance),1),
+                Lacunarity = math.max(1f, Noise.Lacunarity),
+                Offset = Noise.Offset,
+                HeightMultiplier = math.max(1f,Noise.HeightMultiplier),
+            });
+
+            dstManager.AddComponentData(entity, new Data.PoissonDiscData()
+            {
+                Seed = math.max(1u, poissonDiscSample.Seed),
+                Radius = math.max(1u, poissonDiscSample.Radius),
+                SampleBeforeReject = math.max(1u, poissonDiscSample.SampleBeforeReject),
+                NumCellMap = (uint)math.ceil( math.mul(this.ChunkSize, NumChunks) / (float)math.max(1u, poissonDiscSample.Radius) ),
+                CellSize = math.max(1u, poissonDiscSample.Radius)/math.sqrt(2),
             });
         }
     }
@@ -45,5 +82,25 @@ namespace KaizerWaldCode.Data.Conversion
         public int MapSize;
         public int PointPerMeter;
         public float PointSpacing;
+    }
+    [Serializable]
+    public struct PoissonDiscData
+    {
+        public uint Seed;
+        public uint Radius;
+        public uint SampleBeforeReject;
+        //public uint CellMapAxis;
+    }
+
+    [Serializable]
+    public struct NoiseData
+    {
+        public uint Seed;
+        public int Octaves;
+        public float Scale;
+        public float Persistance;
+        public float Lacunarity;
+        public float2 Offset;
+        public float HeightMultiplier;
     }
 }

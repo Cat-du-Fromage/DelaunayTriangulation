@@ -23,11 +23,21 @@ namespace KaizerWaldCode.Data.Conversion
             (
                 typeof(LinkedEntityGroup),
                 typeof(Chunks.Vertices),
-                typeof(Chunks.PoissonDiscSample),
-                typeof(Chunks.PoissonDiscGrid)
+                typeof(Chunks.VoronoiGrid),
+                typeof(Chunks.VerticesCellGrid)
             );
 
+            ComponentTypes poissonSamplesComponents = new ComponentTypes
+            (
+                typeof(Chunks.PoissonDiscSample),
+                typeof(Chunks.PoissonDiscGrid),
+                typeof(Chunks.PDiscGrid)
+            );
+
+            dstManager.AddComponent<Chunks.IslandPoissonDisc>(entity);
+
             dstManager.AddComponents(entity, chunkHolderComponents);
+            dstManager.AddComponents(entity, poissonSamplesComponents);
         }
     }
 }
