@@ -79,7 +79,7 @@ namespace KaizerWaldCode.ECSSystem
         bool RedBlobImplementation(uint seed, float2 sampleDisc, int mapSize)
         {
             float ISLAND_FACTOR = 1.27f; // 1.0 means no small islands; 2.0 leads to a lot
-            float PI2 = math.PI*2;
+            float PI2 = UPi.Two;
 
             float x = 2f * (sampleDisc.x / mapSize - 0.5f);
             float z = 2f * (sampleDisc.y / mapSize - 0.5f);

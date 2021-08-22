@@ -22,9 +22,9 @@ namespace KaizerWaldCode.Data.Conversion
             ComponentTypes chunkHolderComponents = new ComponentTypes
             (
                 typeof(LinkedEntityGroup),
-                typeof(Chunks.Vertices),
-                typeof(Chunks.VoronoiGrid),
-                typeof(Chunks.VerticesCellGrid)
+                //typeof(Chunks.Vertices),
+                typeof(Chunks.VoronoiGrid)
+                //typeof(Chunks.VerticesCellGrid)
             );
 
             ComponentTypes poissonSamplesComponents = new ComponentTypes
@@ -45,7 +45,7 @@ namespace KaizerWaldCode.Data.Conversion
             dstManager.AddComponent<PoissonDiscSamples.PoissonDiscCellIndex>(entity);
 
             dstManager.AddComponents(entity, chunkHolderComponents);
-            dstManager.AddComponents(entity, poissonSamplesComponents);
+            //dstManager.AddComponents(entity, poissonSamplesComponents);
         }
     }
 }

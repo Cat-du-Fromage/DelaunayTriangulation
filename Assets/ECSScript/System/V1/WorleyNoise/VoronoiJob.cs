@@ -8,51 +8,6 @@ using UnityEngine;
 
 namespace KaizerWaldCode.Job
 {
-    [BurstCompile(CompileSynchronously = true)]
-    public struct VoronoiDebugJob : IJobFor
-    {
-        [ReadOnly] public int MapSizeJob;
-
-        [ReadOnly] public NativeArray<float2> SamplePointsJob;
-
-        [WriteOnly] public NativeArray<Color> VoronoiColorJob;
-
-        [BurstDiscard]
-        public void GetXZ(float x, float z)
-        {
-            Debug.Log($"D0 = {x} D1 = {z}");
-        }
-        public void Execute(int index)
-        {
-            int y = (int)math.floor(index / (float)MapSizeJob);
-            int x = index - math.mul(y, MapSizeJob);
-
-            NativeArray<float> distances = new NativeArray<float>(SamplePointsJob.Length, Allocator.Temp, NativeArrayOptions.UninitializedMemory);
-            for (int i = 0; i < SamplePointsJob.Length; i++)
-            {
-                distances[i] = math.distance(new float2(x, y), SamplePointsJob[i]);
-            }
-            distances.Sort();
-            float sample = distances[0]/ (20f);
-            //VoronoiColorJob[index] = Color.Lerp(Color.white, Color.black, sample);
-            VoronoiColorJob[index] = new Color(sample, sample, sample);
-            distances.Dispose();
-        }
-    }
-
-
-    [BurstCompile(CompileSynchronously = true)]
-    public struct VoronoiInitSamplesJob : IJobFor
-    {
-        [ReadOnly] public NativeArray<float3> SamplePointsJob;
-        [WriteOnly] public NativeArray<float4> SamplePointsGridJob;
-        public void Execute(int index)
-        {
-            SamplePointsGridJob[index] = new float4(SamplePointsJob[index], index);
-        }
-    }
-
-
     /// <summary>
     /// There is a more efficient way to fin the closest we use in Poisson Disc
     /// To do Later: since we do it only once in the programme no eed to optimize
@@ -115,7 +70,8 @@ namespace KaizerWaldCode.Job
 
             int2 start = new int2(-1);
             int2 end = new int2(1);
-            int numCell = CellGridStartEnd(JNtArr_VerticesCellIndex[index], ref start, ref end); // need cellGrid from vertex
+            int numCell;
+            CellGridStartEnd(JNtArr_VerticesCellIndex[index], ref start, ref end, out numCell); // need cellGrid from vertex
 
             NativeArray<float2> cells = new NativeArray<float2>(numCell, Allocator.Temp, NativeArrayOptions.UninitializedMemory);
             NativeArray<int> cellsIndex = new NativeArray<int>(numCell, Allocator.Temp, NativeArrayOptions.UninitializedMemory);
@@ -145,11 +101,11 @@ namespace KaizerWaldCode.Job
             JVoronoiVertices[index] = new float4(new float3(xPos,0, zPos), IndexMin(distances, cellsIndex));
         }
 
-        int CellGridStartEnd(int cell, ref int2 start, ref int2 end)
+        void CellGridStartEnd(int cell, ref int2 start, ref int2 end, out int numCell)
         {
             int y = (int)math.floor(cell / (float)NumCellJob);
             int x = cell - math.mul(y, NumCellJob);
-            int numCell = 4;
+            numCell = 4;
             if (y == 0)
             {
                 if (x == 0)
@@ -206,8 +162,6 @@ namespace KaizerWaldCode.Job
                 end = new int2(1); // 3x * 3y = 9
                 numCell = 9;
             }
-
-            return numCell;
         }
 
         /// <summary>
