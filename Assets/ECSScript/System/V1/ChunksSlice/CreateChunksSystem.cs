@@ -7,7 +7,7 @@ using Unity.Rendering;
 using Unity.Transforms;
 using UnityEngine;
 
-namespace KaizerWaldCode.System
+namespace KaizerWaldCode.ECSSystem
 {
     
     public class CreateChunksSystem : SystemBase

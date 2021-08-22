@@ -1,6 +1,6 @@
 using KaizerWaldCode.Job;
-using KaizerwaldCode.Utils;
 using KaizerWaldCode.Utils;
+using static KaizerWaldCode.Utils.NativeCollectionUtils;
 using Unity.Burst;
 using Unity.Collections;
 using Unity.Entities;
@@ -12,8 +12,13 @@ using UnityEngine;
 using UnityEditor;
 using System.Threading.Tasks;
 
-namespace KaizerWaldCode.System
+namespace KaizerWaldCode.ECSSystem
 {
+    /// <summary>
+    /// Process vertices (float3)
+    /// assign values dependending on map datas (notably spacing)
+    /// 
+    /// </summary>
     public class InitGridSystem : SystemBase
     {
         private EntityQueryDesc _eventDescription;
@@ -33,14 +38,10 @@ namespace KaizerWaldCode.System
             ComputeShader initGridCShader = AssetDatabase.LoadAssetAtPath<ComputeShader>("Assets/ECSScript/ComputeShader/FirstInitPoint.compute");
 
             float3[] verticesArr = new float3[MapPointPerAxis * MapPointPerAxis];
-
-            //using NativeArray<float3> vertices = new NativeArray<float3>(MapPointPerAxis * MapPointPerAxis, Allocator.TempJob, NativeArrayOptions.UninitializedMemory);
-            //JobInit(ref verticesArr, mapSetting, MapPointPerAxis);
             verticesArr = await ComputeShaderInit(verticesArr, initGridCShader, mapSetting, MapPointPerAxis);
             
-            GetBuffer<Data.Chunks.Vertices>(GetSingletonEntity<Data.Tag.ChunksHolder>()).Reinterpret<float3>().CopyFrom(verticesArr);
-
-            JobGridCellPoints(verticesArr, mapSetting, MapPointPerAxis);
+            GetBuffer<Data.Vertices.VertexPosition>(GetSingletonEntity<Data.Tag.ChunksHolder>()).Reinterpret<float3>().CopyFrom(verticesArr);
+            JobVerticesCellIndex(mapSetting, verticesArr);
             //don't use utils here because of the editor controls that add some specific checks
             EndSystemEvent(GetSingletonEntity<Data.Tag.MapEventHolder>(), mapSetting);
         }
@@ -55,46 +56,28 @@ namespace KaizerWaldCode.System
             using ComputeBuffer verticesBuffer = ShaderUtils.CreateAndSetBuffer<float3>(vertArr, cs, "grid");
 
             vertArr = await ShaderUtils.AsyncGpuRequest<float3>(cs, new int3(mapPointPerAxis, 1, mapPointPerAxis), verticesBuffer);
-            ShaderUtils.Release(verticesBuffer);
             return vertArr;
         }
 
-        void JobInit(ref float3[] vertArr, Entity mapSetting, int MapPointPerAxis)
+        void JobVerticesCellIndex(Entity mapSetting, float3[] vPos)
         {
-            using NativeArray<float3> vertices = new NativeArray<float3>(MapPointPerAxis * MapPointPerAxis, Allocator.TempJob, NativeArrayOptions.UninitializedMemory);
-            Job.InitGridJob initGridJob = new InitGridJob()
+            int numCells = GetComponent<Data.PoissonDiscData>(mapSetting).NumCellMap;
+            //using NativeArray<float3> verticesPos = new NativeArray<float3>(vPos.Length, Allocator.TempJob, NativeArrayOptions.UninitializedMemory);
+            //verticesPos.CopyFrom(vPos);
+            using NativeArray<float3> verticesPos = ArrayToNativeArray(vPos,Allocator.TempJob,NativeArrayOptions.UninitializedMemory);
+            using NativeArray<int> vCellIndex = new NativeArray<int>(vPos.Length, Allocator.TempJob);
+            VerticesCellIndexJob verticesCellIndexJob = new VerticesCellIndexJob()
             {
-                MapSizeJob = GetComponent<Data.MapData>(mapSetting).MapSize,
-                PointPerMeterJob = GetComponent<Data.MapData>(mapSetting).PointPerMeter,
-                ChunkPointPerMeterJob = GetComponent<Data.MapData>(mapSetting).ChunkPointPerAxis,
-                MapPointPerAxis = GetComponent<Data.MapData>(mapSetting).MapPointPerAxis,
-                SpacingJob = GetComponent<Data.MapData>(mapSetting).PointSpacing,
-                VerticesJob = vertices,
+                JNumCellMap = numCells,
+                JRadius = GetComponent<Data.PoissonDiscData>(mapSetting).Radius,
+                JVertices = verticesPos,
+                JVerticesCellGrid = vCellIndex
             };
-
-            JobHandle initGridJobHandle = initGridJob.ScheduleParallel(MapPointPerAxis * MapPointPerAxis, JobsUtility.JobWorkerCount - 1, Dependency);
-            initGridJobHandle.Complete();
-            vertArr = vertices.ToArray();
+            JobHandle verticesCellIndexJobHandle = verticesCellIndexJob.ScheduleParallel(vPos.Length, JobsUtility.JobWorkerCount - 1, Dependency);
+            verticesCellIndexJobHandle.Complete();
+            GetBuffer<Data.Vertices.VertexCellIndex>(GetSingletonEntity<Data.Tag.ChunksHolder>()).Reinterpret<int>().CopyFrom(vCellIndex);
         }
 
-        void JobGridCellPoints(float3[] vertArr, Entity mapSetting, int MapPointPerAxis)
-        {
-            using NativeArray<float3> vertices = new NativeArray<float3>(MapPointPerAxis * MapPointPerAxis, Allocator.TempJob, NativeArrayOptions.UninitializedMemory);
-            vertices.CopyFrom(vertArr);
-            using NativeArray<float3> cellGrid = new NativeArray<float3>(MapPointPerAxis * MapPointPerAxis, Allocator.TempJob, NativeArrayOptions.UninitializedMemory);
-            PointGridCellJob gridCellJob = new PointGridCellJob()
-            {
-                MapSizeJob = GetComponent<Data.MapData>(mapSetting).MapSize,
-                NumCellMap = GetComponent<Data.PoissonDiscData>(mapSetting).NumCellMap,
-                MapPointPerAxis = MapPointPerAxis,
-                Radius = GetComponent<Data.PoissonDiscData>(mapSetting).Radius,
-                VerticesJob = vertices,
-                VerticesCellGrid = cellGrid,
-            };
-            JobHandle gridCellJobHandle = gridCellJob.ScheduleParallel(MapPointPerAxis * MapPointPerAxis, JobsUtility.JobWorkerCount - 1, Dependency);
-            gridCellJobHandle.Complete();
-            GetBuffer<Data.Chunks.VerticesCellGrid>(GetSingletonEntity<Data.Tag.ChunksHolder>()).Reinterpret<float3>().CopyFrom(cellGrid);
-        }
 
         /// <summary>
         /// Custom EndSystem for Editor management purpose

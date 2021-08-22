@@ -27,9 +27,9 @@ namespace KaizerWaldCode.Data
     public struct PoissonDiscData : IComponentData
     {
         public uint Seed;
-        public uint Radius;
-        public uint SampleBeforeReject;
-        public uint NumCellMap;
+        public int Radius;
+        public int SampleBeforeReject;
+        public int NumCellMap;
         public float CellSize;
     }
 

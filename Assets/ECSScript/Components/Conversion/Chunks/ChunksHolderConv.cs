@@ -36,6 +36,14 @@ namespace KaizerWaldCode.Data.Conversion
 
             dstManager.AddComponent<Chunks.IslandPoissonDisc>(entity);
 
+            //VERTICES
+            dstManager.AddComponent<Vertices.VertexPosition>(entity);
+            dstManager.AddComponent<Vertices.VertexCellIndex>(entity);
+
+            //POISSON DISC SAMPLES
+            dstManager.AddComponent<PoissonDiscSamples.PoissonDiscPosition>(entity);
+            dstManager.AddComponent<PoissonDiscSamples.PoissonDiscCellIndex>(entity);
+
             dstManager.AddComponents(entity, chunkHolderComponents);
             dstManager.AddComponents(entity, poissonSamplesComponents);
         }

@@ -7,7 +7,7 @@ using Unity.Mathematics;
 using UnityEngine;
 using UnityEngine.Rendering;
 
-namespace KaizerwaldCode.Utils
+namespace KaizerWaldCode.Utils
 {
     public static class ShaderUtils
     {

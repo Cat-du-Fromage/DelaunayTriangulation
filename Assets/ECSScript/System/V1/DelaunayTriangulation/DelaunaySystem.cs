@@ -8,7 +8,7 @@ using Unity.Mathematics;
 using Unity.Transforms;
 using UnityEngine;
 
-namespace KaizerWaldCode.System
+namespace KaizerWaldCode.ECSSystem
 {
     public class DelaunaySystem : SystemBase
     {

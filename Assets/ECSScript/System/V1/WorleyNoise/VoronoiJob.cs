@@ -72,7 +72,6 @@ namespace KaizerWaldCode.Job
                 distance[j] = math.distancesq(VerticesJob[index], SamplePointsGrid[j].xyz);
             }
             VerticesGridJob[index] = new float4(VerticesJob[index], SamplePointsGrid[IndexMin(distance)].w);
-            //distance.Dispose();
         }
 
         /// <summary>
@@ -104,28 +103,32 @@ namespace KaizerWaldCode.Job
         [ReadOnly] public int MapSizeJob;
         [ReadOnly] public int NumCellJob;
         [ReadOnly] public int RadiusJob;
-        [ReadOnly] public NativeArray<float3> VerticesCellGridJob;
-        [ReadOnly] public NativeArray<float3> SampleCellGridJob;
-        [WriteOnly] public NativeArray<float4> VoronoiVerticesJob;
+
+        [ReadOnly] public NativeArray<float3> JNtArr_VerticesPos;
+        [ReadOnly] public NativeArray<int> JNtArr_VerticesCellIndex;
+
+        [ReadOnly] public NativeArray<float2> JNtArr_SamplesPos;
+        [NativeDisableParallelForRestriction]
+        [WriteOnly] public NativeArray<float4> JVoronoiVertices;
         public void Execute(int index)
         {
-            //Left : tleft:index +(numCell - 1) / tMid:index - 1 / tbot:index - (numCell + 1)
-            //if (math.all(SampleCellGridJob[index])) return;
 
             int2 start = new int2(-1);
             int2 end = new int2(1);
-            int numCell = 0;
-            CellGridStartEnd((int)VerticesCellGridJob[index].z, ref start, ref end, ref numCell); // need cellGrid from vertex
+            int numCell = CellGridStartEnd(JNtArr_VerticesCellIndex[index], ref start, ref end); // need cellGrid from vertex
 
             NativeArray<float2> cells = new NativeArray<float2>(numCell, Allocator.Temp, NativeArrayOptions.UninitializedMemory);
+            NativeArray<int> cellsIndex = new NativeArray<int>(numCell, Allocator.Temp, NativeArrayOptions.UninitializedMemory);
+
+            //Retrieve from nearest cells : Index + Position
             int cellCount = 0;
             for (int y = start.y; y <= end.y; y++)
             {
                 for (int x = start.x; x <= end.x; x++)
                 {
-                    float2 offset = new float2(x, y);
-                    int indexCellOffset = (int)VerticesCellGridJob[index].z + math.mad(y, NumCellJob, x);
-                    cells[cellCount] = SampleCellGridJob[indexCellOffset].xz;
+                    int indexCellOffset = JNtArr_VerticesCellIndex[index] + math.mad(y, NumCellJob, x);
+                    cells[cellCount] = JNtArr_SamplesPos[indexCellOffset];
+                    cellsIndex[cellCount] = indexCellOffset;
                     cellCount++;
                 }
             }
@@ -133,20 +136,20 @@ namespace KaizerWaldCode.Job
             NativeArray<float> distances = new NativeArray<float>(numCell, Allocator.Temp, NativeArrayOptions.UninitializedMemory);
             for (int i = 0; i < numCell; i++)
             {
-                distances[i] = math.distancesq(VerticesCellGridJob[index].xy, SampleCellGridJob[i].xy);
+                distances[i] = math.distancesq(JNtArr_VerticesPos[index].xz, JNtArr_SamplesPos[cellsIndex[i]]);
             }
 
-            float xPos = VerticesCellGridJob[index].x - (MapSizeJob / 2f);
-            float yPos = VerticesCellGridJob[index].y - (MapSizeJob / 2f);
-            //FAUX: now we dont iterate over all points!!
-            VoronoiVerticesJob[index] = new float4(new float3(xPos,0, yPos), SampleCellGridJob[IndexMin(distances)].z);
+            float xPos = JNtArr_VerticesPos[index].x;
+            float zPos = JNtArr_VerticesPos[index].z;
+
+            JVoronoiVertices[index] = new float4(new float3(xPos,0, zPos), IndexMin(distances, cellsIndex));
         }
 
-        void CellGridStartEnd(int cell, ref int2 start, ref int2 end, ref int numCell)
+        int CellGridStartEnd(int cell, ref int2 start, ref int2 end)
         {
             int y = (int)math.floor(cell / (float)NumCellJob);
             int x = cell - math.mul(y, NumCellJob);
-            numCell = 4;
+            int numCell = 4;
             if (y == 0)
             {
                 if (x == 0)
@@ -203,14 +206,17 @@ namespace KaizerWaldCode.Job
                 end = new int2(1); // 3x * 3y = 9
                 numCell = 9;
             }
+
+            return numCell;
         }
 
         /// <summary>
         /// Find the index of the minimum value of the array
         /// </summary>
         /// <param name="dis"></param>
+        /// <param name="cellIndex"></param>
         /// <returns></returns>
-        int IndexMin(NativeArray<float> dis)
+        int IndexMin(NativeArray<float> dis, NativeArray<int> cellIndex)
         {
             float val = float.PositiveInfinity;
             int index = -1;
@@ -219,7 +225,7 @@ namespace KaizerWaldCode.Job
             {
                 if (dis[i] < val)
                 {
-                    index = i;
+                    index = cellIndex[i];
                     val = dis[i];
                 }
             }

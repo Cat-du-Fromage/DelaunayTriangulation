@@ -10,7 +10,7 @@ using UnityEngine;
 using UnityEngine.Rendering;
 using Material = UnityEngine.Material;
 
-namespace KaizerWaldCode.System
+namespace KaizerWaldCode.ECSSystem
 {
     public class CreateMeshesSystem : SystemBase
     {

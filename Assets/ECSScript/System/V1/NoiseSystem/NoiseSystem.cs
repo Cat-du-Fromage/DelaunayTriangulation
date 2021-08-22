@@ -1,4 +1,5 @@
 using KaizerWaldCode.Job;
+using KaizerWaldCode.Data;
 using KaizerWaldCode.Utils;
 using Unity.Burst;
 using Unity.Collections;
@@ -8,7 +9,7 @@ using Unity.Jobs.LowLevel.Unsafe;
 using Unity.Mathematics;
 using Unity.Transforms;
 
-namespace KaizerWaldCode.System
+namespace KaizerWaldCode.ECSSystem
 {
     public class NoiseSystem : SystemBase
     {
@@ -24,32 +25,18 @@ namespace KaizerWaldCode.System
         protected override void OnUpdate()
         {
             Entity mapSetting = GetSingletonEntity<Data.Tag.MapSettings>();
-            Data.MapData mapData = GetComponent<Data.MapData>(mapSetting);
-            Data.NoiseData noiseData = GetComponent<Data.NoiseData>(mapSetting);
+            MapData mapData = GetComponent<MapData>(mapSetting);
+            NoiseData noiseData = GetComponent<NoiseData>(mapSetting);
 
+            //Offsets Randomize
             using NativeArray<float2> octavesOffsets = new NativeArray<float2>(noiseData.Octaves, Allocator.TempJob, NativeArrayOptions.UninitializedMemory);
-            NoiseRandomJob noiseRandomJob = new NoiseRandomJob()
-            {
-                RandomJob = new Random(noiseData.Seed),
-                OffsetJob = noiseData.Offset,
-                OctOffsetArrayJob = octavesOffsets,
-            };
+            OffsetNoiseRandomJob noiseRandomJob = OffsetNoiseRandom(octavesOffsets, noiseData);
             JobHandle noiseRandomJobHandle = noiseRandomJob.ScheduleParallel(noiseData.Octaves, JobsUtility.JobWorkerCount - 1, Dependency);
 
+            //Noise Map
             using NativeArray<float> noiseMap = new NativeArray<float>(mapData.MapPointPerAxis * mapData.MapPointPerAxis, Allocator.TempJob, NativeArrayOptions.UninitializedMemory);
-            NoiseJob noiseJob = new NoiseJob()
-            {
-                NumPointPerAxisJob = mapData.MapPointPerAxis,
-                OctavesJob = noiseData.Octaves,
-                LacunarityJob = noiseData.Lacunarity,
-                PersistanceJob = noiseData.Persistance,
-                ScaleJob = noiseData.Scale,
-                HeightMulJob = noiseData.HeightMultiplier,
-                OctOffsetArray = octavesOffsets,
-                NoiseMap = noiseMap,
-            };
+            NoiseJob noiseJob = NoiseMap(mapData, noiseData, octavesOffsets, noiseMap);
             JobHandle noiseJobHandle = noiseJob.ScheduleParallel(mapData.MapPointPerAxis * mapData.MapPointPerAxis, JobsUtility.JobWorkerCount - 1, noiseRandomJobHandle);
-            //octavesOffsets.Dispose(noiseJobHandle);
 
             using NativeArray<float4> voronoiPoints = GetBuffer<Data.Chunks.VoronoiGrid>(GetSingletonEntity<Data.Tag.ChunksHolder>()).Reinterpret<float4>().ToNativeArray(Allocator.TempJob);
             using NativeArray<float4> islandPoints = GetBuffer<Data.Chunks.IslandPoissonDisc>(GetSingletonEntity<Data.Tag.ChunksHolder>()).Reinterpret<float4>().ToNativeArray(Allocator.TempJob);
@@ -63,16 +50,37 @@ namespace KaizerWaldCode.System
             };
             JobHandle noiseAttributionJobHandle = noiseAttributionJob.ScheduleParallel(mapData.MapPointPerAxis * mapData.MapPointPerAxis, JobsUtility.JobWorkerCount - 1, noiseJobHandle);
             noiseAttributionJobHandle.Complete();
-            GetBuffer<Data.Chunks.Vertices>(GetSingletonEntity<Data.Tag.ChunksHolder>()).Reinterpret<float3>().CopyFrom(vertices);
+            GetBuffer<Data.Vertices.VertexPosition>(GetSingletonEntity<Data.Tag.ChunksHolder>()).Reinterpret<float3>().CopyFrom(vertices);
 
-            //noiseMap.Dispose();
-            //voronoiPoints.Dispose();
-            //islandPoints.Dispose();
-            //vertices.Dispose();
             _em.RemoveComponent<Data.Events.Event_Noise>(GetSingletonEntity<Data.Tag.MapEventHolder>());
 
             //_em.RemoveComponent<Data.Events.Event_RandomSamples>(GetSingletonEntity<Data.Tag.MapEventHolder>());
             //_em.AddComponent<Data.Events.Event_IslandCoast>(GetSingletonEntity<Data.Tag.MapEventHolder>());
+        }
+
+        OffsetNoiseRandomJob OffsetNoiseRandom(NativeArray<float2> octavesOffsets, NoiseData noiseData)
+        {
+            return new OffsetNoiseRandomJob()
+            {
+                RandomJob = new Random(noiseData.Seed),
+                OffsetJob = noiseData.Offset,
+                OctOffsetArrayJob = octavesOffsets,
+            };
+        }
+
+        NoiseJob NoiseMap(MapData mapData, NoiseData noiseData, NativeArray<float2> octavesOffsets, NativeArray<float> noiseMap)
+        {
+            return new NoiseJob()
+            {
+                NumPointPerAxisJob = mapData.MapPointPerAxis,
+                OctavesJob = noiseData.Octaves,
+                LacunarityJob = noiseData.Lacunarity,
+                PersistanceJob = noiseData.Persistance,
+                ScaleJob = noiseData.Scale,
+                HeightMulJob = noiseData.HeightMultiplier,
+                OctOffsetArray = octavesOffsets,
+                NoiseMap = noiseMap,
+            };
         }
     }
 }

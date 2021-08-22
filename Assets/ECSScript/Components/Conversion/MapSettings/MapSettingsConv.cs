@@ -67,9 +67,9 @@ namespace KaizerWaldCode.Data.Conversion
             dstManager.AddComponentData(entity, new Data.PoissonDiscData()
             {
                 Seed = math.max(1u, poissonDiscSample.Seed),
-                Radius = math.max(1u, poissonDiscSample.Radius),
-                SampleBeforeReject = math.max(1u, poissonDiscSample.SampleBeforeReject),
-                NumCellMap = (uint)math.ceil( math.mul(this.ChunkSize, NumChunks) / (float)math.max(1u, poissonDiscSample.Radius) ),
+                Radius = math.max(1, poissonDiscSample.Radius),
+                SampleBeforeReject = math.max(1, poissonDiscSample.SampleBeforeReject),
+                NumCellMap = (int)math.ceil( math.mul(this.ChunkSize, NumChunks) / (float)math.max(1, poissonDiscSample.Radius) ),
                 CellSize = math.max(1u, poissonDiscSample.Radius)/math.sqrt(2),
             });
         }
@@ -87,8 +87,8 @@ namespace KaizerWaldCode.Data.Conversion
     public struct PoissonDiscData
     {
         public uint Seed;
-        public uint Radius;
-        public uint SampleBeforeReject;
+        public int Radius;
+        public int SampleBeforeReject;
         //public uint CellMapAxis;
     }
 

@@ -1,3 +1,5 @@
+using KaizerWaldCode.Data.Events;
+using KaizerWaldCode.Utils;
 using Unity.Burst;
 using Unity.Collections;
 using Unity.Entities;
@@ -6,7 +8,7 @@ using Unity.Mathematics;
 using Unity.Transforms;
 using UnityEngine;
 
-namespace KaizerWaldCode.System
+namespace KaizerWaldCode.ECSSystem
 {
     public class IslandCoastSystem : SystemBase
     {
@@ -15,81 +17,59 @@ namespace KaizerWaldCode.System
 
         protected override void OnCreate()
         {
-            _eventDescription = new EntityQueryDesc()
-            {
-                All = new ComponentType[] {typeof(Data.Events.Event_IslandCoast) },
-            };
+            ECSUtils.SystemEventRequire<Event_IslandCoast>(ref _eventDescription, ref _em);
             RequireForUpdate(GetEntityQuery(_eventDescription));
-            _em = World.DefaultGameObjectInjectionWorld.EntityManager;
         }
 
         protected override void OnUpdate()
         {
             int mapSize = GetComponent<Data.MapData>(GetSingletonEntity<Data.Tag.MapSettings>()).MapSize;
-
-            /*
-            using NativeArray<float2> samplePoints = GetBuffer<Data.Chunks.PoissonDiscGrid>(GetSingletonEntity<Data.Tag.ChunksHolder>()).Reinterpret<float2>().ToNativeArray(Allocator.TempJob);
-            NativeArray<float4> islandPoints = new NativeArray<float4>(samplePoints.Length, Allocator.TempJob, NativeArrayOptions.UninitializedMemory);
-            //1235
-            for (int i = 0; i < samplePoints.Length; i++)
-            {
-                if (RedBlobImplementation(69, samplePoints[i], mapSize))
-                {
-                    islandPoints[i] = new float4(samplePoints[i].x - (mapSize/2f),0, samplePoints[i].y - (mapSize / 2f), 1f);
-                }
-                else
-                {
-                    islandPoints[i] = new float4(samplePoints[i].x - (mapSize / 2f), 0, samplePoints[i].y - (mapSize / 2f), 0);
-                }
-            }
-            */
-            NativeArray<float3> samplePoints = GetBuffer<Data.Chunks.PDiscGrid>(GetSingletonEntity<Data.Tag.ChunksHolder>()).Reinterpret<float3>().ToNativeArray(Allocator.TempJob);
-            NativeArray<float4> islandPoints = new NativeArray<float4>(GetBuffer<Data.Chunks.PoissonDiscGrid>(GetSingletonEntity<Data.Tag.ChunksHolder>()).Length, Allocator.TempJob, NativeArrayOptions.UninitializedMemory);
-            //NewVoronoiIsland(ref samplePoints, ref islandPoints, mapSize);
-
+            NativeArray<float2> samplesPos = GetBuffer<Data.PoissonDiscSamples.PoissonDiscPosition>(GetSingletonEntity<Data.Tag.ChunksHolder>()).Reinterpret<float2>().ToNativeArray(Allocator.TempJob);
+            NativeArray<float4> islandPoints = new NativeArray<float4>(samplesPos.Length, Allocator.TempJob);
+            float2 val = new float2(-1);
             int realCount = 0;
-            for (int i = 0; i < samplePoints.Length; i++)
+            for (int i = 0; i < samplesPos.Length; i++)
             {
-                if (math.all(samplePoints[i].xy))
+                if (!samplesPos[i].Equals(val))
                 {
-                    Debug.Log($"index = {i} // real index = {realCount}");
-                    if (RedBlobImplementation(69, samplePoints[i].xy, mapSize))
+                    //Debug.Log($"index = {i} // real index = {realCount}");
+                    if (RedBlobImplementation(69, samplesPos[i], mapSize))
                     {
-                        islandPoints[realCount] = new float4(samplePoints[i].x - (mapSize / 2f), 0, samplePoints[i].y - (mapSize / 2f), 1f);
+                        islandPoints[i] = new float4(samplesPos[i].x, 0, samplesPos[i].y, 1f);
                         realCount++;
                     }
                     else
                     {
-                        islandPoints[realCount] = new float4(samplePoints[i].x - (mapSize / 2f), 0, samplePoints[i].y - (mapSize / 2f), 0);
+                        islandPoints[i] = new float4(samplesPos[i].x, 0, samplesPos[i].y, 0);
                         realCount++;
                     }
                 }
             }
 
             GetBuffer<Data.Chunks.IslandPoissonDisc>(GetSingletonEntity<Data.Tag.ChunksHolder>()).Reinterpret<float4>().CopyFrom(islandPoints);
-            samplePoints.Dispose();
+            samplesPos.Dispose();
+            //samplesIndex.Dispose();
             islandPoints.Dispose();
-            _em.RemoveComponent<Data.Events.Event_IslandCoast>(GetSingletonEntity<Data.Tag.MapEventHolder>());
-            _em.AddComponent<Data.Events.Event_Noise>(GetSingletonEntity<Data.Tag.MapEventHolder>());
+            ECSUtils.EndEventSystem<Event_IslandCoast, Event_Noise>(GetSingletonEntity<Data.Tag.MapEventHolder>(), _em);
         }
 
-        void NewVoronoiIsland(ref NativeArray<float3> samplePoints, ref NativeArray<float4> islandPoints, int mapSize)
+        void VoronoiIsland(NativeArray<float2> samplesPosition, ref NativeArray<float4> islandPoints, int mapSize)
         {
             //1235
             int realCount = 0;
-            for (int i = 0; i < samplePoints.Length; i++)
+            for (int i = 0; i < samplesPosition.Length; i++)
             {
-                if (math.all(samplePoints[i].xy) == false) {break;}
+                if (math.all(samplesPosition[i]) == false) {break;}
                 else
                 {
-                    if (RedBlobImplementation(69, samplePoints[i].xy, mapSize))
+                    if (RedBlobImplementation(69, samplesPosition[i], mapSize))
                     {
-                        islandPoints[realCount] = new float4(samplePoints[i].x, 0, samplePoints[i].y, 1f);
+                        islandPoints[realCount] = new float4(samplesPosition[i].x, 0, samplesPosition[i].y, 1f);
                         realCount++;
                     }
                     else
                     {
-                        islandPoints[realCount] = new float4(samplePoints[i].x, 0, samplePoints[i].y, 0);
+                        islandPoints[realCount] = new float4(samplesPosition[i].x, 0, samplesPosition[i].y, 0);
                         realCount++;
                     }
                 }

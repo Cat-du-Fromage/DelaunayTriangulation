@@ -12,7 +12,7 @@ namespace KaizerWaldCode.Job
     /// Process RandomJob
     /// </summary>
     [BurstCompile(CompileSynchronously = true)]
-    public struct NoiseRandomJob : IJobFor
+    public struct OffsetNoiseRandomJob : IJobFor
     {
         [ReadOnly] public Unity.Mathematics.Random RandomJob;
         [ReadOnly] public float2 OffsetJob;
@@ -85,7 +85,7 @@ namespace KaizerWaldCode.Job
         public void Execute(int index)
         {
             int indexVoronoi = (int)VoronoiPointsJob[index].w;
-            if (IslandPointsJob[indexVoronoi].w == 1)
+            if (IslandPointsJob[indexVoronoi].w == 1f)
             {
                 VerticesJob[index] = new float3(VoronoiPointsJob[index].x, NoiseMapJob[index], VoronoiPointsJob[index].z);
             }

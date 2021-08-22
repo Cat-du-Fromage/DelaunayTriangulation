@@ -7,7 +7,7 @@ using Unity.Jobs.LowLevel.Unsafe;
 using Unity.Mathematics;
 using Unity.Transforms;
 using UnityEngine;
-namespace KaizerWaldCode.System
+namespace KaizerWaldCode.ECSSystem
 {
     public class ChunksMeshDataSystem : SystemBase
     {

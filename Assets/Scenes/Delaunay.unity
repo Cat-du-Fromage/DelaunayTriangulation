@@ -1623,8 +1623,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4edff7db406f2e0428fec411dc327b61, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  ChunkSize: 5
-  NumChunks: 2
+  ChunkSize: 10
+  NumChunks: 10
   PointPerMeter: 3
   poissonDiscSample:
     Seed: 15646

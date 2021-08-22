@@ -89,7 +89,7 @@ namespace KaizerWaldCode
         {
             if (RealDebug && !RealDebugVoronoi)
             {
-                float3[] points = _em.GetBuffer<Data.Chunks.Vertices>(_ChunksHolder).Reinterpret<float3>().AsNativeArray().ToArray();
+                float3[] points = _em.GetBuffer<Data.Vertices.VertexPosition>(_ChunksHolder).Reinterpret<float3>().AsNativeArray().ToArray();
                 foreach (float3 point in points)
                 {
                     Gizmos.color = Color.red;

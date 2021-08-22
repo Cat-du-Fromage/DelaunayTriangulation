@@ -16,5 +16,20 @@ namespace KaizerWaldCode.Utils
         {
             array = new NativeArray<float3>(size, Allocator.TempJob, NativeArrayOptions.UninitializedMemory);
         }
+
+        #region Array conversion to NativeArray
+        public static NativeArray<float3> ArrayToNativeArray(float3[] array,Allocator alloc = Allocator.TempJob ,NativeArrayOptions init = NativeArrayOptions.ClearMemory)
+        {
+            NativeArray<float3> nA = new NativeArray<float3>(array.Length, alloc, init);
+            nA.CopyFrom(array);
+            return nA;
+        }
+        public static NativeArray<int> ArrayToNativeArray(int[] array, Allocator alloc = Allocator.TempJob, NativeArrayOptions init = default)
+        {
+            NativeArray<int> nA = new NativeArray<int>(array.Length, alloc, init);
+            nA.CopyFrom(array);
+            return nA;
+        }
+        #endregion Array conversion to NativeArray
     }
 }

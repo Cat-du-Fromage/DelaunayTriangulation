@@ -22,52 +22,65 @@ namespace KaizerWaldCode.Job
         }
     }
 
+    /// <summary>
+    /// Cell grid correspond to
+    /// </summary>
     [BurstCompile(CompileSynchronously = true)]
-    public struct PoissonDiscGridCell : IJobFor
+    public struct PoissonDiscGridCellJob : IJobFor
     {
-        [ReadOnly] public uint NumCellMap;
-        [ReadOnly] public uint Radius;
-        [ReadOnly] public NativeArray<float2> DiscGridJob;
+        [ReadOnly] public int JNumCellMap;
+        [ReadOnly] public int JRadius;
+        [ReadOnly] public NativeList<float2> JNtLst_PDiscPos;
+        [NativeDisableParallelForRestriction]
+        [WriteOnly] public NativeArray<float2> JNtarr_PDiscPosArr;
         [NativeDisableParallelForRestriction]//CAREFUL without this length is limited to 14 in parallel in native array
-        [WriteOnly]public NativeArray<float3> PoissonDiscGridJob;
+        [WriteOnly]public NativeArray<int> JPoissonDiscCellGrid;
         public void Execute(int index)
         {
-            float2 cellGrid = float2.zero;
-            FindCell(ref cellGrid, DiscGridJob[index]);
-            //
-            int cellIndex = (int) math.mad(cellGrid.y, NumCellMap, cellGrid.x);
-            PoissonDiscGridJob[cellIndex] = new float3(DiscGridJob[index], math.mad(cellGrid.y, NumCellMap, cellGrid.x));
+            float2 cellGrid = new float2(JNumCellMap);
+            FindCell(ref cellGrid, JNtLst_PDiscPos[index]);
+            int cellIndex = (int)math.mad(cellGrid.y, JNumCellMap, cellGrid.x);
+            JNtarr_PDiscPosArr[cellIndex] = JNtLst_PDiscPos[index];
+            JPoissonDiscCellGrid[cellIndex] = cellIndex;
         }
 
         void FindCell(ref float2 cellGrid, float2 samplPos)
         {
-            cellGrid.y = NumCellMap;
-            for (int yG = 0; yG < NumCellMap; yG++)
+            
+            for (int i = 0; i < JNumCellMap; i++)
             {
-                if (samplPos.y <= yG * Radius + Radius)
+                if ((int)cellGrid.y == JNumCellMap) cellGrid.y = math.select(JNumCellMap, i, samplPos.y <= math.mad(i, JRadius, JRadius));
+                if ((int)cellGrid.x == JNumCellMap) cellGrid.x = math.select(JNumCellMap, i, samplPos.x <= math.mad(i, JRadius, JRadius));
+                if ((int)cellGrid.x != JNumCellMap && (int)cellGrid.y != JNumCellMap) break;
+            }
+            
+            /*
+            for (int yG = 0; yG < JNumCellMap; yG++)
+            {
+                if (samplPos.y <= math.mad(yG, JRadius, JRadius))
                 {
                     cellGrid.y = yG;
                     break;
                 }
             }
-            cellGrid.x = NumCellMap;
-            for (int xG = 0; xG < NumCellMap; xG++)
+            for (int xG = 0; xG < JNumCellMap; xG++)
             {
-                if (samplPos.x <= xG * Radius + Radius)
+                if (samplPos.x <= math.mad(xG, JRadius, JRadius))
                 {
                     cellGrid.x = xG;
                     break;
                 }
             }
+            */
         }
     }
 
     [BurstCompile(CompileSynchronously = true)]
-    public struct PoissonDiscJobSecond : IJob
+    public struct PoissonDiscGenerationJob : IJob
     {
         [ReadOnly] public int MapSize;
 
-        [ReadOnly] public uint NumSampleBeforeRejectJob;
+        [ReadOnly] public int NumSampleBeforeRejectJob;
         [ReadOnly] public float RadiusJob;
         [ReadOnly] public float CellSize; //(w)radius/math.sqrt(2)
         [ReadOnly] public int IndexInRow; // X(cols) : math.floor(mapHeight/cellSize)
