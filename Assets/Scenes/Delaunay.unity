@@ -450,7 +450,7 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 265746031}
-  m_LocalRotation: {x: 0.12137519, y: 0.09349432, z: -0.011484242, w: 0.98812705}
+  m_LocalRotation: {x: 0.121375166, y: 0.0934943, z: -0.011484239, w: 0.98812705}
   m_LocalPosition: {x: 0, y: 9.72, z: -5.08}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
@@ -1560,7 +1560,7 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1444493354}
-  m_LocalRotation: {x: 0.12137519, y: 0.09349432, z: -0.011484242, w: 0.98812705}
+  m_LocalRotation: {x: 0.121375166, y: 0.0934943, z: -0.011484239, w: 0.98812705}
   m_LocalPosition: {x: 0, y: 9.72, z: -5.08}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
@@ -1627,7 +1627,7 @@ MonoBehaviour:
   NumChunks: 10
   PointPerMeter: 3
   poissonDiscSample:
-    Seed: 15646
+    Seed: 110
     Radius: 2
     SampleBeforeReject: 30
   Noise:

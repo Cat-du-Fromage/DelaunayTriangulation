@@ -6,6 +6,8 @@ using Unity.Mathematics;
 using Unity.Transforms;
 using UnityEngine;
 
+using static Unity.Mathematics.math;
+using int2 = Unity.Mathematics.int2;
 namespace KaizerWaldCode.Job
 {
     /// <summary>
@@ -71,7 +73,7 @@ namespace KaizerWaldCode.Job
             int2 start = new int2(-1);
             int2 end = new int2(1);
             int numCell;
-            CellGridStartEnd(JNtArr_VerticesCellIndex[index], ref start, ref end, out numCell); // need cellGrid from vertex
+            CellGridStartEnd(JNtArr_VerticesCellIndex[index], out start, out end, out numCell); // need cellGrid from vertex
 
             NativeArray<float2> cells = new NativeArray<float2>(numCell, Allocator.Temp, NativeArrayOptions.UninitializedMemory);
             NativeArray<int> cellsIndex = new NativeArray<int>(numCell, Allocator.Temp, NativeArrayOptions.UninitializedMemory);
@@ -82,7 +84,7 @@ namespace KaizerWaldCode.Job
             {
                 for (int x = start.x; x <= end.x; x++)
                 {
-                    int indexCellOffset = JNtArr_VerticesCellIndex[index] + math.mad(y, NumCellJob, x);
+                    int indexCellOffset = JNtArr_VerticesCellIndex[index] + mad(y, NumCellJob, x);
                     cells[cellCount] = JNtArr_SamplesPos[indexCellOffset];
                     cellsIndex[cellCount] = indexCellOffset;
                     cellCount++;
@@ -92,7 +94,7 @@ namespace KaizerWaldCode.Job
             NativeArray<float> distances = new NativeArray<float>(numCell, Allocator.Temp, NativeArrayOptions.UninitializedMemory);
             for (int i = 0; i < numCell; i++)
             {
-                distances[i] = math.distancesq(JNtArr_VerticesPos[index].xz, JNtArr_SamplesPos[cellsIndex[i]]);
+                distances[i] = distancesq(JNtArr_VerticesPos[index].xz, JNtArr_SamplesPos[cellsIndex[i]]);
             }
 
             float xPos = JNtArr_VerticesPos[index].x;
@@ -101,10 +103,10 @@ namespace KaizerWaldCode.Job
             JVoronoiVertices[index] = new float4(new float3(xPos,0, zPos), IndexMin(distances, cellsIndex));
         }
 
-        void CellGridStartEnd(int cell, ref int2 start, ref int2 end, out int numCell)
+        void CellGridStartEnd(int cell, out int2 start, out int2 end, out int numCell)
         {
-            int y = (int)math.floor(cell / (float)NumCellJob);
-            int x = cell - math.mul(y, NumCellJob);
+            int y = (int)floor(cell / (float)NumCellJob);
+            int x = cell - mul(y, NumCellJob);
             numCell = 4;
             if (y == 0)
             {

@@ -6,6 +6,9 @@ using Unity.Jobs;
 using Unity.Mathematics;
 using Unity.Transforms;
 using UnityEngine;
+
+using static Unity.Mathematics.math;
+using float2 = Unity.Mathematics.float2;
 using Random = Unity.Mathematics.Random;
 
 namespace KaizerWaldCode.Job
@@ -39,7 +42,7 @@ namespace KaizerWaldCode.Job
         {
             float2 cellGrid = new float2(JNumCellMap);
             FindCell(ref cellGrid, JNtLst_PDiscPos[index]);
-            int cellIndex = (int)math.mad(cellGrid.y, JNumCellMap, cellGrid.x);
+            int cellIndex = (int)mad(cellGrid.y, JNumCellMap, cellGrid.x);
             JNtarr_PDiscPosArr[cellIndex] = JNtLst_PDiscPos[index];
             JPoissonDiscCellGrid[cellIndex] = cellIndex;
         }
@@ -49,8 +52,8 @@ namespace KaizerWaldCode.Job
             
             for (int i = 0; i < JNumCellMap; i++)
             {
-                if ((int)cellGrid.y == JNumCellMap) cellGrid.y = math.select(JNumCellMap, i, samplPos.y <= math.mad(i, JRadius, JRadius));
-                if ((int)cellGrid.x == JNumCellMap) cellGrid.x = math.select(JNumCellMap, i, samplPos.x <= math.mad(i, JRadius, JRadius));
+                if ((int)cellGrid.y == JNumCellMap) cellGrid.y = select(JNumCellMap, i, samplPos.y <= mad(i, JRadius, JRadius));
+                if ((int)cellGrid.x == JNumCellMap) cellGrid.x = select(JNumCellMap, i, samplPos.x <= mad(i, JRadius, JRadius));
                 if ((int)cellGrid.x != JNumCellMap && (int)cellGrid.y != JNumCellMap) break;
             }
             
@@ -103,8 +106,9 @@ namespace KaizerWaldCode.Job
                 bool accepted = false;
                 for (int k = 0; k < NumSampleBeforeRejectJob; k++)
                 {
+                    //Prng = Random.CreateFromIndex(JSeed);
                     float2 randDirection = Prng.NextFloat2Direction();
-                    float2 sample = math.mad(randDirection, Prng.NextFloat(RadiusJob, math.mul(2, RadiusJob)), spawnPosition);
+                    float2 sample = mad(randDirection, Prng.NextFloat(RadiusJob, mul(2, RadiusJob)), spawnPosition);
 
                     int sampleX = (int)(sample.x / CellSize); //col
                     int sampleY = (int)(sample.y / CellSize); //row
@@ -113,7 +117,7 @@ namespace KaizerWaldCode.Job
                     {
                         SamplePointsJob.Add(sample);
                         ActivePointsJob.Add(sample);
-                        DiscGridJob[math.mad(sampleY, Row, sampleX)] = SamplePointsJob.Length;
+                        DiscGridJob[mad(sampleY, Row, sampleX)] = SamplePointsJob.Length;
                         accepted = true;
                         break;
                     }
@@ -128,21 +132,21 @@ namespace KaizerWaldCode.Job
         {
             if (sample.x >= 0 && sample.x < MapSize && sample.y >= 0 && sample.y < MapSize)
             {
-                int searchStartX = math.max(0, sampleX - 2);
-                int searchEndX = math.min(sampleX + 2, IndexInRow - 1);
+                int searchStartX = max(0, sampleX - 2);
+                int searchEndX = min(sampleX + 2, IndexInRow - 1);
 
-                int searchStartY = math.max(0, sampleY - 2);
-                int searchEndY = math.min(sampleY + 2, Row - 1);
+                int searchStartY = max(0, sampleY - 2);
+                int searchEndY = min(sampleY + 2, Row - 1);
 
                 // <= or it will created strange cluster of points at the borders of the map
                 for (int y = searchStartY; y <= searchEndY; y++)
                 {
                     for (int x = searchStartX; x <= searchEndX; x++)
                     {
-                        int indexSample = DiscGridJob[math.mad(y, Row, x)] - 1;
+                        int indexSample = DiscGridJob[mad(y, Row, x)] - 1;
                         if (indexSample != -1)
                         {
-                            if (math.distancesq(sample, SamplePointsJob[indexSample]) < math.mul(RadiusJob, RadiusJob)) return false;
+                            if (distancesq(sample, SamplePointsJob[indexSample]) < mul(RadiusJob, RadiusJob)) return false;
                         }
                     }
                 }

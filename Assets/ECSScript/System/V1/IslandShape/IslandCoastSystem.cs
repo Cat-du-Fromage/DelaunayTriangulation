@@ -8,6 +8,9 @@ using Unity.Mathematics;
 using Unity.Transforms;
 using UnityEngine;
 
+using static Unity.Mathematics.math;
+using Random = Unity.Mathematics.Random;
+
 namespace KaizerWaldCode.ECSSystem
 {
     public class IslandCoastSystem : SystemBase
@@ -33,7 +36,7 @@ namespace KaizerWaldCode.ECSSystem
                 if (!samplesPos[i].Equals(val))
                 {
                     //Debug.Log($"index = {i} // real index = {realCount}");
-                    if (RedBlobImplementation(69, samplesPos[i], mapSize))
+                    if (RedBlobImplementation(123, samplesPos[i], mapSize))
                     {
                         islandPoints[i] = new float4(samplesPos[i].x, 0, samplesPos[i].y, 1f);
                         realCount++;
@@ -59,10 +62,10 @@ namespace KaizerWaldCode.ECSSystem
             int realCount = 0;
             for (int i = 0; i < samplesPosition.Length; i++)
             {
-                if (math.all(samplesPosition[i]) == false) {break;}
+                if (all(samplesPosition[i]) == false) {break;}
                 else
                 {
-                    if (RedBlobImplementation(69, samplesPosition[i], mapSize))
+                    if (RedBlobImplementation(156, samplesPosition[i], mapSize))
                     {
                         islandPoints[realCount] = new float4(samplesPosition[i].x, 0, samplesPosition[i].y, 1f);
                         realCount++;
@@ -86,34 +89,35 @@ namespace KaizerWaldCode.ECSSystem
 
             float3 point = new float3(x, 0, z);
             //Debug.Log($"x = {x}// z = {z}");
-            Unity.Mathematics.Random islandRandom = new Unity.Mathematics.Random(seed);
+            Random islandRandom = new Random(seed);
 
             int bumps = islandRandom.NextInt(1, 6);
             float startAngle = islandRandom.NextFloat(PI2); //radians 2 Pi = 360°
             float dipAngle = islandRandom.NextFloat(PI2);
             float dipWidth = islandRandom.NextFloat(0.2f, 0.7f); // = mapSize?
 
-            float angle = math.atan2(point.z, point.x);
+            float angle = atan2(point.z, point.x);
             float lengthMul = 0.5f; // 0.1f : big island 1.0f = small island // by increasing by 0.1 island size is reduced by 1
-            float length = lengthMul * math.max(math.abs(point.x), math.abs(point.z)) + math.length(point);
+            float totalLength = lengthMul * max(abs(point.x), abs(point.z)) + length(point);
 
             //Debug.Log($"angle = {angle}// length = {length}");
             //Sin val Range[-1,1]
-            float radialsBase = math.mad(bumps, angle, startAngle); // bump(1-6) * angle(0.x) + startangle(0.x)
-
-            float r1Sin = math.sin(radialsBase + math.cos((bumps + 3) * angle));
-            float r2Sin = math.sin(radialsBase + math.sin((bumps + 2) * angle));
-
+            float radialsBase = mad(bumps, angle, startAngle); // bump(1-6) * angle(0.x) + startangle(0.x)
+            //Debug.Log($"radialsBase = {radialsBase}");
+            float r1Sin = sin(radialsBase + cos((bumps + 3) * angle));
+            float r2Sin = sin(radialsBase + sin((bumps + 2) * angle));
+            //Debug.Log($"math.cos = {radialsBase + math.cos((bumps + 3) * angle)} //math.sin = {radialsBase + math.sin((bumps + 2) * angle)} ");
+            //Debug.Log($"r1Sin = {r1Sin} //r2Sin = {r2Sin} // length = {length}");
             //r1 = 0.5f // r2 = 0.7f
             float radial1 = 0.5f + 0.4f * r1Sin;
             float radial2 = 0.7f - 0.2f * r2Sin;
 
-            if (math.abs(angle - dipAngle) < dipWidth || math.abs(angle - dipAngle + PI2) < dipWidth || math.abs(angle - dipAngle - PI2) < dipWidth)
+            if (abs(angle - dipAngle) < dipWidth || abs(angle - dipAngle + PI2) < dipWidth || abs(angle - dipAngle - PI2) < dipWidth)
             {
                 radial1 = radial2 = 0.2f;
             }
 
-            if (length < radial1 || (length > radial1 * ISLAND_FACTOR && length < radial2)) { return true; }
+            if (totalLength < radial1 || (totalLength > radial1 * ISLAND_FACTOR && totalLength < radial2)) { return true; }
             return false;
         }
     }

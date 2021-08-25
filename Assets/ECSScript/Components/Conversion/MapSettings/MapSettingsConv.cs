@@ -70,7 +70,7 @@ namespace KaizerWaldCode.Data.Conversion
                 Radius = math.max(1, poissonDiscSample.Radius),
                 SampleBeforeReject = math.max(1, poissonDiscSample.SampleBeforeReject),
                 NumCellMap = (int)math.ceil( math.mul(this.ChunkSize, NumChunks) / (float)math.max(1, poissonDiscSample.Radius) ),
-                CellSize = math.max(1u, poissonDiscSample.Radius)/math.sqrt(2),
+                CellSize = math.max(1f, poissonDiscSample.Radius)/math.SQRT2,
             });
         }
     }
