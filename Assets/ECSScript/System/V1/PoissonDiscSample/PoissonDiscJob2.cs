@@ -99,7 +99,7 @@ namespace KaizerWaldCode.Job
             //float2 firstPoint = new float2(MapSize / 2f, MapSize / 2f);
             float2 firstPoint = float2.zero;
             ActivePointsJob.Add(firstPoint);
-            while (ActivePointsJob.Length > 0)
+            while (!ActivePointsJob.IsEmpty)
             {
                 int spawnIndex = Prng.NextInt(ActivePointsJob.Length);
                 float2 spawnPosition = ActivePointsJob[spawnIndex];

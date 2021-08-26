@@ -6,6 +6,8 @@ using Unity.Mathematics;
 using Unity.Transforms;
 using UnityEngine;
 
+using static Unity.Mathematics.math;
+
 namespace KaizerWaldCode.Job
 {
     [BurstCompile(CompileSynchronously = true)]
@@ -17,8 +19,8 @@ namespace KaizerWaldCode.Job
         public void Execute(int index)
         {
             if (SamplesJob.Length < 3) return;
-            CoordsJob[math.mul(2, index)] = SamplesJob[index].x;
-            CoordsJob[math.mad(2, index, 1)] = SamplesJob[index].y;
+            CoordsJob[mul(2, index)] = SamplesJob[index].x;
+            CoordsJob[mad(2, index, 1)] = SamplesJob[index].y;
         }
     }
 
@@ -50,14 +52,14 @@ namespace KaizerWaldCode.Job
             for (int i = 0; i < NJob; i++)
             {
                 if (i == I0Job || i == I1Job) continue;
-                var r = Circumradius( I0Job, I1Job, new float2(CoordsJob[math.mul(2, i)], CoordsJob[math.mad(2, i, 1)]) );
+                var r = Circumradius( I0Job, I1Job, new float2(CoordsJob[mul(2, i)], CoordsJob[mad(2, i, 1)]) );
                 if (r < minRadius)
                 {
                     I2Job[0] = i;
                     minRadius = r;
                 }
             }
-            I2PosJob[0] = new float2(CoordsJob[math.mul(2, I2Job[0])], CoordsJob[math.mad(2, I2Job[0], 1)]);
+            I2PosJob[0] = float2(CoordsJob[mul(2, I2Job[0])], CoordsJob[mad(2, I2Job[0], 1)]);
         }
 
         private float Circumradius(float2 a, float2 b, float2 c)
@@ -66,12 +68,12 @@ namespace KaizerWaldCode.Job
             float dy = b.y - a.y;
             float ex = c.x - a.x;
             float ey = c.y - a.y;
-            float bl = math.mul(dx, dx) + math.mul(dy, dy);
-            float cl = math.mul(ex, ex) + math.mul(ey, ey);
-            float d = 0.5f / (math.mul(dx, ey) - math.mul(dy, ex));
-            float x = math.mul((math.mul(ey, bl) - math.mul(dy, cl)), d);
-            float y = math.mul((math.mul(dx, cl) - math.mul(ex, bl)), d);
-            return math.mul(x,x) + math.mul(y,y);
+            float bl = mul(dx, dx) + mul(dy, dy);
+            float cl = mul(ex, ex) + mul(ey, ey);
+            float d = 0.5f / (mul(dx, ey) - mul(dy, ex));
+            float x = mul((mul(ey, bl) - mul(dy, cl)), d);
+            float y = mul((mul(dx, cl) - mul(ex, bl)), d);
+            return mul(x,x) + mul(y,y);
         }
     }
 
