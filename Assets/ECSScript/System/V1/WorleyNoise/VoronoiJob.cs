@@ -29,7 +29,7 @@ namespace KaizerWaldCode.Job
             int numCell;
 
             CellGridRanges(JNtArr_VerticesCellIndex[index], out xRange, out yRange, out numCell);
-            NativeArray<float2> cells = new NativeArray<float2>(numCell, Allocator.Temp, NativeArrayOptions.UninitializedMemory);
+            //NativeArray<float2> cells = new NativeArray<float2>(numCell, Allocator.Temp, NativeArrayOptions.UninitializedMemory);
             NativeArray<int> cellsIndex = new NativeArray<int>(numCell, Allocator.Temp, NativeArrayOptions.UninitializedMemory);
 
             int cellCount = 0;
@@ -38,7 +38,7 @@ namespace KaizerWaldCode.Job
                 for (int x = xRange.x; x <= xRange.y; x++)
                 {
                     int indexCellOffset = JNtArr_VerticesCellIndex[index] + mad(y, NumCellJob, x);
-                    cells[cellCount] = JNtArr_SamplesPos[indexCellOffset];
+                    //cells[cellCount] = JNtArr_SamplesPos[indexCellOffset];
                     cellsIndex[cellCount] = indexCellOffset;
                     cellCount++;
                 }

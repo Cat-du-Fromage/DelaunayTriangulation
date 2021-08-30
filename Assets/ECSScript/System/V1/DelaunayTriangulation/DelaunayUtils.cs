@@ -216,5 +216,69 @@ namespace KaizerWaldCode.ECSDelaunay
             }
             return index;
         }
+        /// <summary>
+        /// Find who from i0 and i1 is the left or right one
+        /// return also configuration
+        /// </summary>
+        /// <param name="lr"></param>
+        /// <param name="config"></param>
+        /// <param name="i0Pos"></param>
+        /// <param name="i1Pos"></param>
+        /// <param name="i0"></param>
+        /// <param name="i1"></param>
+        public static void FindLeftRight(out int2 lr, out int config, float2 i0Pos, float2 i1Pos, int i0, int i1)
+        {
+            float2 offset = i1Pos - i0Pos;
+            int2 i0I1 = int2(i0, i1);
+            int2 i1I0 = int2(i1, i0);
+
+            if (offset.x == 0)
+            {
+                config = 0; //CAREFUL WITH THIS ONE!
+                lr = select(i0I1, i1I0, offset.y > 0);
+            }
+            else if (offset.y == 0)
+            {
+                config = 1;
+                lr = select(i1I0, i0I1, offset.x > 0);
+            }
+            else
+            {
+                config = 2;
+                lr = select(i1I0, i0I1, offset.x > 0);
+            }
+        }
+
+        public static void FindDoubleCellGridRange(out int2 yRange, out int2 xRange, int config, int i0, int i1, int mapNumCell)
+        {
+            int2 lr = int2(i0, i1);
+
+            //Left Part
+            int ly = (int)floor(lr.x / (float)mapNumCell);
+            int lx = lr.x - mul(ly, mapNumCell);
+
+            if(config != 0)
+            {
+                int2 YZeroOne() => select(int2(-1, 2), int2(0, 2), ly == 0);
+                yRange = select(int2(-2, 2), YZeroOne(), ly == 0 || ly == 1);
+
+                int2 XZeroOne() => select(int2(-1, 0), int2(0, 0), lx == 0);
+                xRange = select(int2(-2, 0), XZeroOne(), lx == 0 || lx == 1);
+            }
+            else
+            {
+                int2 YZeroOne() => select(int2(-1, 0), int2(0, 0), ly == 0);
+                yRange = select(int2(-2, 0), YZeroOne(), ly == 0 || ly == 1);
+
+                int2 XZeroOne() => select(int2(-1, 2), int2(0, 2), lx == 0);
+                xRange = select(int2(-2, 2), XZeroOne(), lx == 0 || lx == 1);
+            }
+
+            /*
+            if (ly == 0) yRange = int2(0, 2);
+            else if(ly == 1) yRange = int2(-1, 2);
+            else yRange = int2(-2, 2);
+            */
+        }
     }
 }
