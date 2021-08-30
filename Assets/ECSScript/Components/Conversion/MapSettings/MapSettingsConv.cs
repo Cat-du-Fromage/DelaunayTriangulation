@@ -69,7 +69,8 @@ namespace KaizerWaldCode.Data.Conversion
                 Seed = math.max(1u, poissonDiscSample.Seed),
                 Radius = math.max(1, poissonDiscSample.Radius),
                 SampleBeforeReject = math.max(1, poissonDiscSample.SampleBeforeReject),
-                NumCellMap = (int)math.ceil( math.mul(this.ChunkSize, NumChunks) / (float)math.max(1, poissonDiscSample.Radius) ),
+                //NumCellMap = (int)math.ceil( math.mul(this.ChunkSize, NumChunks) / (float)math.max(1, poissonDiscSample.Radius) ),
+                NumCellMap = (int)math.ceil(this.ChunkSize/ (float)math.max(1, poissonDiscSample.Radius) * NumChunks),
                 CellSize = math.max(1f, poissonDiscSample.Radius)/math.SQRT2,
             });
         }

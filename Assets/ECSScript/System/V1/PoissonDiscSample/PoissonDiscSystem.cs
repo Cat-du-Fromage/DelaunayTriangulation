@@ -1,3 +1,4 @@
+using System;
 using KaizerWaldCode.Job;
 using KaizerWaldCode.Utils;
 using KaizerWaldCode.Data.Events;
@@ -46,8 +47,8 @@ namespace KaizerWaldCode.ECSSystem
             poissonDiscSecondJobHandle.Complete();
             #endregion PoissonDiscSamples
 
-            NativeArray<float2> NtArr_samples = new NativeArray<float2>(cellNum * cellNum, Allocator.TempJob);
-            NativeArray<int> sampleCellGrid = new NativeArray<int>(cellNum * cellNum, Allocator.TempJob); //need values to be set to 0
+            NativeArray<float2> NtArr_samples = new NativeArray<float2>(cellNum * cellNum, Allocator.TempJob, NativeArrayOptions.UninitializedMemory);
+            NativeArray<int> sampleCellGrid = new NativeArray<int>(cellNum * cellNum, Allocator.TempJob, NativeArrayOptions.UninitializedMemory); //need values to be set to 0
             Job
             .WithBurst()
             .WithCode(() =>

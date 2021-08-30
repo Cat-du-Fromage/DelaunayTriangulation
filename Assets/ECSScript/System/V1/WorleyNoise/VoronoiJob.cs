@@ -1,3 +1,4 @@
+using System;
 using Unity.Burst;
 using Unity.Collections;
 using Unity.Entities;
@@ -10,79 +11,31 @@ using static Unity.Mathematics.math;
 using int2 = Unity.Mathematics.int2;
 namespace KaizerWaldCode.Job
 {
-    /// <summary>
-    /// There is a more efficient way to fin the closest we use in Poisson Disc
-    /// To do Later: since we do it only once in the programme no eed to optimize
-    /// </summary>
-    [BurstCompile(CompileSynchronously = true)]
-    public struct VoronoiJob : IJobFor
-    {
-        [ReadOnly] public NativeArray<float3> VerticesJob;
-        [ReadOnly] public NativeArray<float4> SamplePointsGrid;
-        [WriteOnly] public NativeArray<float4> VerticesGridJob;
-
-        public void Execute(int index)
-        {
-            NativeArray<float> distance = new NativeArray<float>(SamplePointsGrid.Length, Allocator.Temp, NativeArrayOptions.UninitializedMemory);
-            for (int j = 0; j < SamplePointsGrid.Length; j++)
-            {
-                distance[j] = math.distancesq(VerticesJob[index], SamplePointsGrid[j].xyz);
-            }
-            VerticesGridJob[index] = new float4(VerticesJob[index], SamplePointsGrid[IndexMin(distance)].w);
-        }
-
-        /// <summary>
-        /// Find the index of the minimum value of the array
-        /// </summary>
-        /// <param name="dis"></param>
-        /// <returns></returns>
-        int IndexMin(NativeArray<float> dis)
-        {
-            float val = float.PositiveInfinity;
-            int index = -1;
-
-            for (int i = 0; i < dis.Length; i++)
-            {
-                if (dis[i] < val)
-                {
-                    index = i;
-                    val = dis[i];
-                }
-            }
-            return index;
-        }
-    }
-
-
     [BurstCompile(CompileSynchronously = true)]
     public struct VoronoiCellGridJob : IJobFor
     {
-        [ReadOnly] public int MapSizeJob;
         [ReadOnly] public int NumCellJob;
-        [ReadOnly] public int RadiusJob;
 
         [ReadOnly] public NativeArray<float3> JNtArr_VerticesPos;
         [ReadOnly] public NativeArray<int> JNtArr_VerticesCellIndex;
-
         [ReadOnly] public NativeArray<float2> JNtArr_SamplesPos;
+
         [NativeDisableParallelForRestriction]
         [WriteOnly] public NativeArray<float4> JVoronoiVertices;
         public void Execute(int index)
         {
-
-            int2 start = new int2(-1);
-            int2 end = new int2(1);
+            int2 xRange;
+            int2 yRange;
             int numCell;
-            CellGridStartEnd(JNtArr_VerticesCellIndex[index], out start, out end, out numCell); // need cellGrid from vertex
 
+            CellGridRanges(JNtArr_VerticesCellIndex[index], out xRange, out yRange, out numCell);
             NativeArray<float2> cells = new NativeArray<float2>(numCell, Allocator.Temp, NativeArrayOptions.UninitializedMemory);
             NativeArray<int> cellsIndex = new NativeArray<int>(numCell, Allocator.Temp, NativeArrayOptions.UninitializedMemory);
 
-            //Retrieve from nearest cells : Index + Position
             int cellCount = 0;
-            for (int y = start.y; y <= end.y; y++)
+            for (int y = yRange.x; y <= yRange.y; y++)
             {
-                for (int x = start.x; x <= end.x; x++)
+                for (int x = xRange.x; x <= xRange.y; x++)
                 {
                     int indexCellOffset = JNtArr_VerticesCellIndex[index] + mad(y, NumCellJob, x);
                     cells[cellCount] = JNtArr_SamplesPos[indexCellOffset];
@@ -94,88 +47,45 @@ namespace KaizerWaldCode.Job
             NativeArray<float> distances = new NativeArray<float>(numCell, Allocator.Temp, NativeArrayOptions.UninitializedMemory);
             for (int i = 0; i < numCell; i++)
             {
-                distances[i] = distancesq(JNtArr_VerticesPos[index].xz, JNtArr_SamplesPos[cellsIndex[i]]);
+                distances[i] = select(distancesq(JNtArr_VerticesPos[index].xz, JNtArr_SamplesPos[cellsIndex[i]]), float.MaxValue, JNtArr_SamplesPos[cellsIndex[i]].Equals(float2(-1)));
             }
-
-            float xPos = JNtArr_VerticesPos[index].x;
-            float zPos = JNtArr_VerticesPos[index].z;
-
-            JVoronoiVertices[index] = new float4(new float3(xPos,0, zPos), IndexMin(distances, cellsIndex));
+            JVoronoiVertices[index] = float4(float3(JNtArr_VerticesPos[index].x, 0, JNtArr_VerticesPos[index].z), IndexMin(distances, cellsIndex));
         }
 
-        void CellGridStartEnd(int cell, out int2 start, out int2 end, out int numCell)
+        /// <summary>
+        /// Get both X/Y grid Range (neighbores around the cell)
+        /// Get numCell to check (may be less if the cell checked is on a corner or on an edge of the grid)
+        /// </summary>
+        /// <param name="cell">index of the current cell checked</param>
+        /// <param name="xRange"></param>
+        /// <param name="yRange"></param>
+        /// <param name="numCell"></param>
+        void CellGridRanges(int cell, out int2 xRange, out int2 yRange, out int numCell)
         {
             int y = (int)floor(cell / (float)NumCellJob);
             int x = cell - mul(y, NumCellJob);
-            numCell = 4;
-            if (y == 0)
-            {
-                if (x == 0)
-                {
-                    start = int2.zero;
-                    end = new int2(1); // 2x*2y = 4
-                }
-                else if (x == NumCellJob-1)
-                {
-                    start = new int2(-1, 0);
-                    end = new int2(0, 1); // 2x * 2y = 4
-                }
-                else
-                {
-                    start = new int2(-1, 0);
-                    end = new int2(1); // 3x * 2y = 6
-                    numCell = 6;
-                }
-            }
-            else if (y == NumCellJob-1)
-            {
-                if (x == 0)
-                {
-                    start = new int2(0, -1);
-                    end = new int2(1, 0); // 2x * 2y = 4
-                }
-                else if (x == NumCellJob-1)
-                {
-                    start = new int2(-1);
-                    end = int2.zero; // 2x * 2y = 4
-                }
-                else
-                {
-                    start = new int2(-1);
-                    end = new int2(1, 0); // 3x * 2y = 6
-                    numCell = 6;
-                }
-            }
-            else if (x == 0)
-            {
-                start = new int2(0, -1);
-                end = new int2(1); // 2x * 3y = 6
-                numCell = 6;
-            }
-            else if (x == NumCellJob-1)
-            {
-                start = new int2(-1);
-                end = new int2(0, 1); // 2x * 3y = 6
-                numCell = 6;
-            }
-            else
-            {
-                start = new int2(-1);
-                end = new int2(1); // 3x * 3y = 9
-                numCell = 9;
-            }
+            
+            bool corner = (x == 0 && y == 0) || (x == 0 && y == NumCellJob - 1) || (x == NumCellJob - 1 && y == 0) || (x == NumCellJob - 1 && y == NumCellJob - 1);
+            bool yOnEdge = y == 0 || y == NumCellJob - 1;
+            bool xOnEdge = x == 0 || x == NumCellJob - 1;
+
+            //check if on edge 0 : int2(0, 1) ; if not NumCellJob - 1 : int2(-1, 0)
+            int2 OnEdge(int e) => select(int2(-1, 0), int2(0, 1), e == 0);
+            yRange = select(OnEdge(y), int2(-1, 1), !yOnEdge);
+            xRange = select(OnEdge(x), int2(-1, 1), !xOnEdge);
+            numCell = select(select(9, 6, yOnEdge || xOnEdge), 4, corner);
         }
 
         /// <summary>
         /// Find the index of the minimum value of the array
         /// </summary>
-        /// <param name="dis"></param>
-        /// <param name="cellIndex"></param>
-        /// <returns></returns>
+        /// <param name="dis">array containing float distance value from point to his neighbors</param>
+        /// <param name="cellIndex">array storing index of float2 position of poissonDiscSamples </param>
+        /// <returns>index of the closest point</returns>
         int IndexMin(NativeArray<float> dis, NativeArray<int> cellIndex)
         {
-            float val = float.PositiveInfinity;
-            int index = -1;
+            float val = float.MaxValue;
+            int index = 0;
 
             for (int i = 0; i < dis.Length; i++)
             {

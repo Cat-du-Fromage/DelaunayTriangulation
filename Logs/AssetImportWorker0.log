@@ -15,11 +15,11 @@ Z:/ProjetPerso/Unity/Procedural_Terrain/DelaunayTriangulation
 -logFile
 Logs/AssetImportWorker0.log
 -srvPort
-61930
+50405
 Successfully changed project path to: Z:/ProjetPerso/Unity/Procedural_Terrain/DelaunayTriangulation
 Z:/ProjetPerso/Unity/Procedural_Terrain/DelaunayTriangulation
 Using Asset Import Pipeline V2.
-Refreshing native plugins compatible for Editor in 99.38 ms, found 1 plugins.
+Refreshing native plugins compatible for Editor in 107.84 ms, found 1 plugins.
 Preloading 0 native plugins for Editor in 0.00 ms.
 Initialize engine version: 2020.3.5f1 (8095aa901b9b)
 [Subsystems] Discovering subsystems at path G:/Jeux/Unity/Project/2020.3.5f1/Editor/Data/Resources/UnitySubsystems
@@ -35,7 +35,7 @@ Initialize mono
 Mono path[0] = 'G:/Jeux/Unity/Project/2020.3.5f1/Editor/Data/Managed'
 Mono path[1] = 'G:/Jeux/Unity/Project/2020.3.5f1/Editor/Data/MonoBleedingEdge/lib/mono/unityjit'
 Mono config path = 'G:/Jeux/Unity/Project/2020.3.5f1/Editor/Data/MonoBleedingEdge/etc'
-Using monoOptions --debugger-agent=transport=dt_socket,embedding=1,server=y,suspend=n,address=127.0.0.1:56132
+Using monoOptions --debugger-agent=transport=dt_socket,embedding=1,server=y,suspend=n,address=127.0.0.1:56020
 Begin MonoManager ReloadAssembly
 Registering precompiled unity dll's ...
 Register platform support module: G:/Jeux/Unity/Project/2020.3.5f1/Editor/Data/PlaybackEngines/WebGLSupport/UnityEditor.WebGL.Extensions.dll
@@ -43,42 +43,42 @@ Register platform support module: G:/Jeux/Unity/Project/2020.3.5f1/Editor/Data/P
 Register platform support module: G:/Jeux/Unity/Project/2020.3.5f1/Editor/Data/PlaybackEngines/WindowsStandaloneSupport/UnityEditor.WindowsStandalone.Extensions.dll
 Register platform support module: G:/Jeux/Unity/Project/2020.3.5f1/Editor/Data/PlaybackEngines/LinuxStandaloneSupport/UnityEditor.LinuxStandalone.Extensions.dll
 Register platform support module: G:/Jeux/Unity/Project/2020.3.5f1/Editor/Data/PlaybackEngines/LuminSupport/UnityEditor.Lumin.Extensions.dll
-Registered in 0.001782 seconds.
+Registered in 0.001831 seconds.
 Native extension for Lumin target not found
 Native extension for LinuxStandalone target not found
 Native extension for WindowsStandalone target not found
 Native extension for OSXStandalone target not found
 Native extension for WebGL target not found
-Refreshing native plugins compatible for Editor in 96.65 ms, found 1 plugins.
+Refreshing native plugins compatible for Editor in 104.66 ms, found 1 plugins.
 Preloading 0 native plugins for Editor in 0.00 ms.
 Mono: successfully reloaded assembly
-- Completed reload, in  2.315 seconds
+- Completed reload, in  2.299 seconds
 Platform modules already initialized, skipping
 Registering precompiled user dll's ...
-Registered in 0.008129 seconds.
+Registered in 0.008441 seconds.
 Begin MonoManager ReloadAssembly
 Native extension for Lumin target not found
 Native extension for LinuxStandalone target not found
 Native extension for WindowsStandalone target not found
 Native extension for OSXStandalone target not found
 Native extension for WebGL target not found
-Refreshing native plugins compatible for Editor in 112.46 ms, found 1 plugins.
+Refreshing native plugins compatible for Editor in 103.93 ms, found 1 plugins.
 Preloading 0 native plugins for Editor in 0.00 ms.
-TypeManager.Initialize took: 246ms
+TypeManager.Initialize took: 248ms
 Mono: successfully reloaded assembly
-- Completed reload, in  2.719 seconds
+- Completed reload, in  2.714 seconds
 Platform modules already initialized, skipping
 ========================================================================
 Worker process is ready to serve import requests
-Launched and connected shader compiler UnityShaderCompiler.exe after 0.03 seconds
-Refreshing native plugins compatible for Editor in 1.11 ms, found 1 plugins.
+Launched and connected shader compiler UnityShaderCompiler.exe after 0.07 seconds
+Refreshing native plugins compatible for Editor in 1.19 ms, found 1 plugins.
 Preloading 0 native plugins for Editor in 0.00 ms.
-Unloading 7743 Unused Serialized files (Serialized files now loaded: 0)
+Unloading 7744 Unused Serialized files (Serialized files now loaded: 0)
 System memory in use before: 319.5 MB.
-System memory in use after: 319.9 MB.
+System memory in use after: 320.0 MB.
 
-Unloading 42 unused Assets to reduce memory usage. Loaded Objects now: 8186.
-Total: 4.735600 ms (FindLiveObjects: 0.656300 ms CreateObjectMapping: 0.407000 ms MarkObjects: 3.613300 ms  DeleteObjects: 0.058300 ms)
+Unloading 42 unused Assets to reduce memory usage. Loaded Objects now: 8187.
+Total: 4.698600 ms (FindLiveObjects: 0.671500 ms CreateObjectMapping: 0.437700 ms MarkObjects: 3.525900 ms  DeleteObjects: 0.062500 ms)
 
 AssetImportParameters requested are different than current active one (requested -> active):
   custom:DOTSType/UnityEngine.EventSystems.EventSystem: 2c81b6c3f3277fcd2c81b6c3f3277fcd -> 
@@ -425,10 +425,10 @@ AssetImportParameters requested are different than current active one (requested
   custom:DOTSType/UnityEditor.ProfilerWindow: a10cd4f2690e2171a10cd4f2690e2171 -> 
   custom:DOTSType/UnityEditor.VFX.VFXGraphCompiledData+VFXImplicitContextOfExposedExpression: 98429f7d078d0ec998429f7d078d0ec9 -> 
   custom:DOTSType/UnityEditor.LightProbeGroupInspector: 20d8caecfea817ce20d8caecfea817ce -> 
-  custom:DOTSType/Unity.Animation.StateMachine.StateMachineSystemState: 2399befa48bf18fb2399befa48bf18fb -> 
-  custom:DOTSType/UnityEditor.VFX.VFXSlotVector: 4761d648571abaf94761d648571abaf9 -> 
-  custom:DOTSType/UnityEditor.CapsuleColliderEditor: 26ad230c710a8cf126ad230c710a8cf1 -> 
   custom:DOTSType/UnityEditor.Experimental.TerrainAPI.PaintTreesTool: 3e43c92c9ac73def3e43c92c9ac73def -> 
+  custom:DOTSType/Unity.Animation.StateMachine.StateMachineSystemState: 2399befa48bf18fb2399befa48bf18fb -> 
+  custom:DOTSType/UnityEditor.CapsuleColliderEditor: 26ad230c710a8cf126ad230c710a8cf1 -> 
+  custom:DOTSType/UnityEditor.VFX.VFXSlotVector: 4761d648571abaf94761d648571abaf9 -> 
   custom:DOTSType/Unity.Transforms.PostRotationEulerXYZ: 17f8b8a5675d11eb17f8b8a5675d11eb -> 
   custom:DOTSType/UnityEditor.Rendering.HighDefinition.CubeLutImporter: f5e35447e65cacabf5e35447e65cacab -> 
   custom:DOTSType/UnityEditor.VFX.Operator.Floor: 207200ea78f3c8b4207200ea78f3c8b4 -> 
@@ -771,15 +771,16 @@ AssetImportParameters requested are different than current active one (requested
   custom:DOTSType/Cinemachine.Editor.CinemachineSmoothPathEditor: eda85600b9f0b827eda85600b9f0b827 -> 
   custom:DOTSType/UnityEditor.VFX.VFXLitCubeOutput: 198812c936ef4cdc198812c936ef4cdc -> 
   custom:DOTSType/UnityEditor.TrueTypeFontImporter: 879db9475b6b3731879db9475b6b3731 -> 
+  custom:DOTSType/UnityEditor.VFX.VisualEffectEditor: 501478bf012f7459501478bf012f7459 -> 
   custom:DOTSType/UnityEditor.VFX.VFXSpawnerConstantRate: a6eff7fe7da3a16ba6eff7fe7da3a16b -> 
-  custom:DOTSType/UnityEditor.NetworkTransformChildEditor: ade62f8eee6aad39ade62f8eee6aad39 -> 
   custom:DOTSType/KaizerWaldCode.Data.Conversion.MapSettingsConv: f83f8f0ee76128e3f83f8f0ee76128e3 -> 
   custom:DOTSType/UnityEditor.VFX.GetCustomAttribute: bb81cb3ef4c56afabb81cb3ef4c56afa -> 
   custom:DOTSType/KaizerWaldCode.Data.Conversion.ChunksHolderConv: 352cdb9a068faac3352cdb9a068faac3 -> 
   custom:DOTSType/Unity.Physics.PhysicsGravityFactor: 8ab51309e4cdebcc8ab51309e4cdebcc -> 
   custom:DOTSType/Unity.Transforms.CompositeScale: 078db9cc48876ebd078db9cc48876ebd -> 
-  custom:DOTSType/UnityEditor.VFX.VisualEffectEditor: 501478bf012f7459501478bf012f7459 -> 
   custom:DOTSType/UnityEngine.Rendering.UI.DebugUIHandlerPanel: 4ca2f5d3d855e3784ca2f5d3d855e378 -> 
+  custom:DOTSType/Unity.Rendering.AmbientProbeTag: 430c43f4bc6bde5a430c43f4bc6bde5a -> 
+  custom:DOTSType/UnityEditor.NetworkTransformChildEditor: ade62f8eee6aad39ade62f8eee6aad39 -> 
   custom:DOTSType/UnityEngine.TestRunner.Utils.TestRunCallbackListener: be8e9fd807bd1303be8e9fd807bd1303 -> 
   custom:DOTSType/UnityEngine.Networking.NetworkIdentity: c56ede46306720c2c56ede46306720c2 -> 
   custom:DOTSType/Unity.Animation.BlendTree1DResource: c758785aad99c60ac758785aad99c60a -> 
@@ -788,11 +789,10 @@ AssetImportParameters requested are different than current active one (requested
   custom:DOTSType/Cinemachine.Editor.CinemachineBlendListCameraEditor: b4bd62b198389bfbb4bd62b198389bfb -> 
   custom:DOTSType/UnityEditor.UIElements.Debugger.UIElementsDebugger: 30bc2363ab7249f930bc2363ab7249f9 -> 
   custom:DOTSType/UnityEngine.Timeline.SignalReceiver: e5cfb076722f46d9e5cfb076722f46d9 -> 
-  custom:DOTSType/Unity.Rendering.AmbientProbeTag: 430c43f4bc6bde5a430c43f4bc6bde5a -> 
   custom:DOTSType/UnityEngine.UI.PositionAsUV1: a6ee513f794769bba6ee513f794769bb -> 
+  custom:DOTSType/UnityEngine.Rendering.HighDefinition.VolumetricFog: f85aa9e404db7255f85aa9e404db7255 -> 
   custom:DOTSType/UnityEditor.ShaderGraph.CreateShaderSubGraph: c87171a94b9fd6ebc87171a94b9fd6eb -> 
   custom:DOTSType/Unity.Scenes.ExternalEntityRefInfo: 43244452628bb63543244452628bb635 -> 
-  custom:DOTSType/UnityEngine.Rendering.HighDefinition.VolumetricFog: f85aa9e404db7255f85aa9e404db7255 -> 
   custom:DOTSType/Unity.Rendering.BuiltinMaterialPropertyUnity_LODFade: 593fcfdda11e6fde593fcfdda11e6fde -> 
   custom:DOTSType/UnityEngine.Effector2D: 5923a4e47043fd275923a4e47043fd27 -> 
   custom:DOTSType/UnityEditor.IMGUI.Controls.AdvancedDropdownWindow: 6c6b743f1066ad1e6c6b743f1066ad1e -> 
@@ -1091,9 +1091,9 @@ AssetImportParameters requested are different than current active one (requested
   custom:DOTSType/UnityEngine.VFX.Utility.VFXInputAxisBinder: 76c41cabb8eee6f376c41cabb8eee6f3 -> 
   custom:DOTSType/UnityEditor.WebCamTextureInspector: f3ee8ae331d309c4f3ee8ae331d309c4 -> 
   custom:DOTSType/UnityEngine.Playables.PlayableDirector: 5e646bbf57f9128a5e646bbf57f9128a -> 
+  custom:DOTSType/UnityEditor.PopupWindowWithoutFocus: a20bfe313d7f63a5a20bfe313d7f63a5 -> 
   custom:DOTSType/UnityEditor.TagManagerInspector: eebcac03c368e19beebcac03c368e19b -> 
   custom:DOTSType/UnityEditor.VFX.VFXSlotTextureCubeArray: 3de1e262d997f5e73de1e262d997f5e7 -> 
-  custom:DOTSType/UnityEditor.PopupWindowWithoutFocus: a20bfe313d7f63a5a20bfe313d7f63a5 -> 
   custom:DOTSType/UnityEditor.TimeManagerEditor: d797300757aad311d797300757aad311 -> 
   custom:DOTSType/UnityEditor.VideoClipImporter: 99da53fb54c1bf7b99da53fb54c1bf7b -> 
   custom:DOTSType/UnityEditor.GUIStyleHolder: b43e450a4ff5f4c2b43e450a4ff5f4c2 -> 
@@ -1410,9 +1410,8 @@ AssetImportParameters requested are different than current active one (requested
   custom:DOTSType/Unity.Entities.EditorCompanionInPreviewSceneTag: f86cf9bae66afed4f86cf9bae66afed4 -> 
   custom:DOTSType/UnityEditor.FallbackEditorWindow: 15efb3b25dd63fe515efb3b25dd63fe5 -> 
   custom:DOTSType/UnityEditor.VFX.Operator.PositionDepth: f4bf92d11f13e708f4bf92d11f13e708 -> 
-  custom:DOTSType/UnityEngine.ShaderVariantCollection: 7df83b5d44f9d48c7df83b5d44f9d48c -> 
-  custom:DOTSType/Unity.Transforms.ParentScaleInverse: d8b8ec957fda93bdd8b8ec957fda93bd -> 
   custom:DOTSType/UnityEditor.RotateTool: 5dc40f4e3bd3037a5dc40f4e3bd3037a -> 
+  custom:DOTSType/Unity.Transforms.ParentScaleInverse: d8b8ec957fda93bdd8b8ec957fda93bd -> 
   custom:DOTSType/UnityEngine.VFX.Utility.VFXMouseEventBinder: 66644804fc71a2c566644804fc71a2c5 -> 
   custom:DOTSType/UnityEditor.TimeManager: da0412f119f5f1a5da0412f119f5f1a5 -> 
   custom:DOTSType/UnityEditor.Rendering.HighDefinition.DefaultSettingsPanelProvider+DefaultSettingsPanelIMGUI+CoreEditorDrawerEditorWrapper: 7a2bdff467faa1257a2bdff467faa125 -> 
@@ -1431,6 +1430,7 @@ AssetImportParameters requested are different than current active one (requested
   custom:DOTSType/TMPro.TMP_SpriteAnimator: e6fabc5c983adeb1e6fabc5c983adeb1 -> 
   custom:DOTSType/UnityEditor.VFX.VFXDecalOutput: 0ea917119eaf737d0ea917119eaf737d -> 
   custom:DOTSType/UnityEditorInternal.Transition: 1affe5395ccf908c1affe5395ccf908c -> 
+  custom:DOTSType/UnityEngine.ShaderVariantCollection: 7df83b5d44f9d48c7df83b5d44f9d48c -> 
   custom:DOTSType/Unity.Rendering.BuiltinMaterialPropertyUnity_SHAbAuthoring: 9b081044521a41e99b081044521a41e9 -> 
   custom:DOTSType/UnityEditor.OcclusionAreaEditor: 5b8288d682d1e0115b8288d682d1e011 -> 
   custom:DOTSType/UnityEditor.Timeline.AnimationPlayableAssetInspector: a807bf1edc1784d3a807bf1edc1784d3 -> 
@@ -1479,12 +1479,12 @@ AssetImportParameters requested are different than current active one (requested
   custom:DOTSType/UnityEditor.WindowFocusState: afc02077a0c9f31dafc02077a0c9f31d -> 
   custom:DOTSType/UnityEditor.VFX.Operator.Lerp: 93205d50d2e205ae93205d50d2e205ae -> 
   custom:DOTSType/UnityEngine.AudioHighPassFilter: 50def1341511b24b50def1341511b24b -> 
-  custom:DOTSType/UnityEditor.TerrainColliderEditor: 1018b257c91239ba1018b257c91239ba -> 
-  custom:DOTSType/UnityEditor.TextureInspector: 5cc1300853537fca5cc1300853537fca -> 
   custom:DOTSType/UnityEditor.AnimationWindowEvent: 2a7e844c8e2f58ce2a7e844c8e2f58ce -> 
-  custom:DOTSType/Unity.Rendering.FrozenRenderSceneTag: cb3c396f39158777cb3c396f39158777 -> 
-  custom:DOTSType/UnityEditor.Audio.AudioMixerSnapshotController: 690844117723ac0c690844117723ac0c -> 
+  custom:DOTSType/UnityEditor.TerrainColliderEditor: 1018b257c91239ba1018b257c91239ba -> 
   custom:DOTSType/UnityEditor.SphereColliderEditor: aaa5afdd62c82d13aaa5afdd62c82d13 -> 
+  custom:DOTSType/UnityEditor.TextureInspector: 5cc1300853537fca5cc1300853537fca -> 
+  custom:DOTSType/UnityEditor.Audio.AudioMixerSnapshotController: 690844117723ac0c690844117723ac0c -> 
+  custom:DOTSType/Unity.Rendering.FrozenRenderSceneTag: cb3c396f39158777cb3c396f39158777 -> 
   custom:DOTSType/UnityEngine.Rendering.HighDefinition.Compositor.AlphaInjection: f83cb73ba95acae5f83cb73ba95acae5 -> 
   custom:DOTSType/UnityEngine.CanvasGroup: da0cac3229587319da0cac3229587319 -> 
   custom:DOTSType/UnityEditor.TestTools.TestRunner.EditModeLauncher+BackgroundListener: c80c9a2ebf99517cc80c9a2ebf99517c -> 
@@ -1732,20 +1732,20 @@ AssetImportParameters requested are different than current active one (requested
   custom:DOTSType/Unity.Rendering.HybridChunkInfo: 04af8e2e20c4c79e04af8e2e20c4c79e -> 
   custom:DOTSType/UnityEditor.VisualScripting.Editor.FunctionCallNodeModelInspector: a6be2d0150eeac9aa6be2d0150eeac9a -> 
   custom:DOTSType/KaizerWaldCode.Data.Delaunay.Points: 4b399fa576439e5d4b399fa576439e5d -> 
-  custom:DOTSType/Unity.Transforms.RotationEulerXYZ: a73971462e1d0029a73971462e1d0029 -> 
-  custom:DOTSType/UnityEngine.Rendering.HighDefinition.ShadowsMidtonesHighlights: cf9e4dd9a194f8ffcf9e4dd9a194f8ff -> 
   custom:DOTSType/Unity.Transforms.CompositeRotation: 8bc995b005ebe4c38bc995b005ebe4c3 -> 
+  custom:DOTSType/Unity.Transforms.RotationEulerXYZ: a73971462e1d0029a73971462e1d0029 -> 
+  custom:DOTSType/TMPro.TMP_InputField: 5ca8f1e409ae9e075ca8f1e409ae9e07 -> 
+  custom:DOTSType/UnityEngine.Rendering.HighDefinition.ShadowsMidtonesHighlights: cf9e4dd9a194f8ffcf9e4dd9a194f8ff -> 
   custom:DOTSType/UnityEditor.PackageImport: d782d27b9e9f3a63d782d27b9e9f3a63 -> 
   custom:DOTSType/UnityEngine.Sprite: 48e63c09ab7e195d48e63c09ab7e195d -> 
   custom:DOTSType/Unity.Rendering.RootLODWorldReferencePoint: 52dc7da50b87318452dc7da50b873184 -> 
   custom:DOTSType/Unity.Entities.WorldTimeQueue: e9cbb96adca0937ee9cbb96adca0937e -> 
-  custom:DOTSType/TMPro.TMP_InputField: 5ca8f1e409ae9e075ca8f1e409ae9e07 -> 
+  custom:DOTSType/Unity.Rendering.BuiltinMaterialPropertyUnity_LightIndices: 53c8acc3d32ec04f53c8acc3d32ec04f -> 
   custom:DOTSType/Unity.Rendering.HDRPMaterialPropertyThicknessAuthoring: a64ef1c3f2856b13a64ef1c3f2856b13 -> 
   custom:DOTSType/UnityEditor.VFX.Operator.DotProduct: f4030f596d59f269f4030f596d59f269 -> 
   custom:DOTSType/Unity.Scenes.Editor.ClearEntitiesCacheWindow: ff5e4942d7943fe4ff5e4942d7943fe4 -> 
   custom:DOTSType/UnityEditorInternal.AnimationWindowKeySelection: 947c91af5920f6ef947c91af5920f6ef -> 
   custom:DOTSType/UnityEditor.Timeline.TimelineAssetViewModel: 5ecc28d198d74b045ecc28d198d74b04 -> 
-  custom:DOTSType/Unity.Rendering.BuiltinMaterialPropertyUnity_LightIndices: 53c8acc3d32ec04f53c8acc3d32ec04f -> 
   custom:DOTSType/UnityEngine.VFX.Utility.VFXTriggerEventBinder: 4b91a795d1fce68b4b91a795d1fce68b -> 
   custom:DOTSType/Unity.Entities.StaticOptimizeEntity: 346cca765bf51c72346cca765bf51c72 -> 
   custom:DOTSType/Cinemachine.CinemachineDollyCart: f4e35777f0792d4af4e35777f0792d4a -> 
@@ -2185,4 +2185,19 @@ AssetImportParameters requested are different than current active one (requested
   custom:DOTSType/Unity.Scenes.DisableLiveLink: acfec9bf12a4cae8acfec9bf12a4cae8 -> 
   custom:DOTSType/UnityEngine.Rendering.HighDefinition.ReflectionKernelGenerator: c13444376b7857d1c13444376b7857d1 -> 
   custom:DOTSType/UnityEditor.NavMeshObstacleInspector: e09ab8310b8a0334e09ab8310b8a0334 -> 
+========================================================================
+Received Import Request.
+  path: Assets/Utils/ECSUtils/NativeCollectionUtils.cs
+  artifactKey: Guid(9be964a7df7732142ade9f067a86bbe2) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/Utils/ECSUtils/NativeCollectionUtils.cs using Guid(9be964a7df7732142ade9f067a86bbe2) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: '3745dabb2bdd781d5db256106ba49e3b') in 0.035882 seconds
+  Import took 0.046568 seconds .
+
+========================================================================
+Received Import Request.
+  Time since last request: 3.077140 seconds.
+  path: Assets/Utils/ECSUtils/NativeCollectionUtils.cs
+  artifactKey: Guid(9be964a7df7732142ade9f067a86bbe2) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/Utils/ECSUtils/NativeCollectionUtils.cs using Guid(9be964a7df7732142ade9f067a86bbe2) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: '3745dabb2bdd781d5db256106ba49e3b') in 0.001300 seconds
+  Import took 0.011012 seconds .
+
 AssetImportWorkerClient::OnTransportError - code=2 error=End of file

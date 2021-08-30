@@ -55,7 +55,7 @@ namespace KaizerWaldCode.ECSSystem
             _em.RemoveComponent<Data.Events.Event_Noise>(GetSingletonEntity<Data.Tag.MapEventHolder>());
 
             //_em.RemoveComponent<Data.Events.Event_RandomSamples>(GetSingletonEntity<Data.Tag.MapEventHolder>());
-            //_em.AddComponent<Data.Events.Event_IslandCoast>(GetSingletonEntity<Data.Tag.MapEventHolder>());
+            _em.AddComponent<Data.Events.Event_Delaunay>(GetSingletonEntity<Data.Tag.MapEventHolder>());
         }
 
         OffsetNoiseRandomJob OffsetNoiseRandom(NativeArray<float2> octavesOffsets, NoiseData noiseData)

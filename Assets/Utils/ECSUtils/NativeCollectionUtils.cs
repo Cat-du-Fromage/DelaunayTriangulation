@@ -19,19 +19,28 @@ namespace KaizerWaldCode.Utils
             array = new NativeArray<float3>(size, Allocator.TempJob, NativeArrayOptions.UninitializedMemory);
         }
 
-        #region Array conversion to NativeArray
-        public static NativeArray<float3> ArrayToNativeArray(float3[] array,Allocator alloc = Allocator.TempJob ,NativeArrayOptions init = NativeArrayOptions.ClearMemory)
+        public static NativeArray<T> AllocNtvAry<T>(int size) where T : struct
         {
-            NativeArray<float3> nA = new NativeArray<float3>(array.Length, alloc, init);
+            return new NativeArray<T>(size, Allocator.TempJob, NativeArrayOptions.UninitializedMemory);
+        }
+
+        public static NativeArray<T> AllocFillNtvAry<T>(int size, T val) where T : struct
+        {
+            NativeArray<T> a = new NativeArray<T>(size, Allocator.TempJob, NativeArrayOptions.UninitializedMemory);
+            for (int i = 0; i < size; i++) { a[i] = val; }
+            return a;
+        }
+
+        public static NativeArray<T> ArrayToNativeArray<T>(T[] array,Allocator alloc = Allocator.TempJob ,NativeArrayOptions init = NativeArrayOptions.ClearMemory) where T : struct
+        {
+            NativeArray<T> nA = new NativeArray<T>(array.Length, alloc, init);
             nA.CopyFrom(array);
             return nA;
         }
-        public static NativeArray<int> ArrayToNativeArray(int[] array, Allocator alloc = Allocator.TempJob, NativeArrayOptions init = default)
+
+        public static void Fill<T>(ref NativeArray<T> array, int arrayLength, T val) where T : struct
         {
-            NativeArray<int> nA = new NativeArray<int>(array.Length, alloc, init);
-            nA.CopyFrom(array);
-            return nA;
+            for (int i = 0; i < arrayLength; i++) { array[i] = val; }
         }
-        #endregion Array conversion to NativeArray
     }
 }

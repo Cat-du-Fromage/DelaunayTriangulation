@@ -49,9 +49,7 @@ namespace KaizerWaldCode.ECSSystem
         {
             return new VoronoiCellGridJob()
             {
-                MapSizeJob = GetComponent<Data.MapData>(mapSettings).MapSize,
                 NumCellJob = GetComponent<Data.PoissonDiscData>(mapSettings).NumCellMap,
-                RadiusJob = GetComponent<Data.PoissonDiscData>(mapSettings).Radius,
                 JNtArr_VerticesPos = verticesPos,
                 JNtArr_SamplesPos = samplesPos,
                 JNtArr_VerticesCellIndex = verticesIndex,
